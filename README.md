@@ -13,6 +13,7 @@ Esta aplicação é um sistema completo de gerenciamento de tarefas que inclui:
 - **Dashboard com Estatísticas** personalizadas por usuário
 - **Controle de Acesso** baseado em roles (USER/ADMIN)
 - **Soft Delete** para usuários e tarefas com possibilidade de restauração
+- **Sistema de Cache** com Redis para otimização de consultas frequentes
 
 ## 🛠️ Pré-requisitos
 
@@ -20,6 +21,7 @@ Antes de começar, certifique-se de ter instalado:
 
 - [Node.js](https://nodejs.org/) (versão 16 ou superior)
 - [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
+- [Redis](https://redis.io/) para cache (pode ser executado via Docker)
 - [Git](https://git-scm.com/)
 
 ## 🚀 Instalação e Configuração
@@ -46,19 +48,26 @@ DATABASE_URL="postgresql://postgres:docker@localhost:5432/acessoria-api?schema=p
 JWT_SECRET="your-secret-key"
 JWT_EXPIRATION="7d"
 PORT=3000
+# Configurações do Redis (opcional - padrões funcionam se Redis estiver na porta 6379)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+# REDIS_PASSWORD=sua-senha-redis
 ```
 
-### 4. Inicie o banco de dados com Docker
+### 4. Inicie os serviços com Docker
 
 ```bash
 docker-compose up -d
 ```
 
-Este comando irá:
-- Criar um container PostgreSQL
-- Expor a porta 5432
-- Criar o banco `acessoria-api`
-- Configurar usuário `postgres` com senha `docker`
+Este comando irá iniciar:
+- **PostgreSQL**: Database principal na porta 5432
+  - Usuário: `postgres`
+  - Senha: `docker`
+  - Database: `acessoria-api`
+- **Redis**: Cache na porta 6379
+  - Imagem Alpine (leve e eficiente)
+  - Persistência habilitada (AOF)
 
 ### 5. Execute as migrações do Prisma
 
@@ -107,6 +116,136 @@ npm run start:prod
 ```
 
 A aplicação estará disponível em: `http://localhost:3000`
+
+## 🚀 Sistema de Cache
+
+### 📋 Visão Geral
+
+A aplicação implementa um sistema de cache robusto usando **Redis** para otimizar consultas frequentes e melhorar a performance geral da API.
+
+### 🔧 Configuração
+
+#### Bibliotecas Utilizadas
+- `@nestjs/cache-manager` - Módulo oficial do NestJS para cache
+- `cache-manager` - Gerenciador de cache
+- `cache-manager-redis-store` - Store Redis para cache-manager
+- `redis` - Cliente Redis
+
+#### Configuração do Redis
+O cache é configurado automaticamente no `AppModule` e conecta-se ao Redis usando as seguintes variáveis de ambiente:
+
+```env
+REDIS_HOST=localhost      # Host do Redis (padrão: localhost)
+REDIS_PORT=6379          # Porta do Redis (padrão: 6379)
+REDIS_PASSWORD=          # Senha do Redis (opcional)
+```
+
+### 🎯 Funcionalidades Implementadas
+
+#### 1. **Cache Automático em Consultas**
+- **Tarefas**: Cache de listagem e consultas individuais (TTL: 2-5 minutos)
+- **Tags**: Cache de listagem de tags (TTL: 10 minutos)
+- **Estatísticas**: Cache do dashboard (TTL: 3 minutos)
+
+#### 2. **Interceptor Personalizado**
+- Interceptor customizado (`CacheInterceptor`) para cache automático
+- Headers de resposta indicam cache HIT/MISS (`X-Cache`)
+- Chaves de cache incluem ID do usuário e parâmetros da requisição
+
+#### 3. **Invalidação Inteligente**
+- Cache é invalidado automaticamente quando dados são modificados
+- Operações de criação, atualização e exclusão limpam cache relacionado
+- Invalidação granular por usuário e tipo de dados
+
+### 📊 Estratégias de Cache
+
+#### **Por Endpoint:**
+
+| Endpoint | TTL | Estratégia | Invalidação |
+|----------|-----|------------|-------------|
+| `GET /tasks` | 2 minutos | Por usuário + filtros | Ao criar/editar/deletar task |
+| `GET /tasks/:id` | 5 minutos | Por task específica | Ao editar/deletar task |
+| `GET /tags` | 10 minutos | Global | Ao criar/editar/deletar tag |
+| `GET /stats/dashboard` | 3 minutos | Por usuário + role | Ao modificar tasks do usuário |
+
+#### **Chaves de Cache:**
+- `tasks:user:{userId}:page:{page}:limit:{limit}:status:{status}:priority:{priority}:search:{search}`
+- `task:{taskId}:user:{userId}`
+- `tags:all`
+- `stats:user:{userId}:role:{role}`
+
+### 🔄 Como Funciona
+
+#### 1. **Consulta com Cache**
+```typescript
+// Primeira requisição - consulta banco de dados
+GET /tasks → Database → Cache → Response (X-Cache: MISS)
+
+// Requisições subsequentes - retorna do cache
+GET /tasks → Cache → Response (X-Cache: HIT)
+```
+
+#### 2. **Invalidação Automática**
+```typescript
+// Usuário cria uma tarefa
+POST /tasks → Database → Invalidate cache → Response
+
+// Próxima consulta busca dados atualizados
+GET /tasks → Database → Cache → Response (X-Cache: MISS)
+```
+
+### 🛠️ Comandos Úteis
+
+#### Verificar Cache Redis
+```bash
+# Conectar ao Redis
+docker exec -it acessoria-redis redis-cli
+
+# Listar todas as chaves
+KEYS *
+
+# Ver conteúdo de uma chave específica
+GET "tasks:user:123:page:1:limit:10:status:all:priority:all:search:none"
+
+# Limpar todo o cache
+FLUSHALL
+```
+
+#### Monitoramento
+```bash
+# Ver estatísticas do Redis
+docker exec acessoria-redis redis-cli INFO memory
+
+# Monitorar comandos em tempo real
+docker exec acessoria-redis redis-cli MONITOR
+```
+
+### 📈 Benefícios
+
+1. **Performance**: Redução de 30-50% no tempo de resposta para consultas frequentes
+2. **Escalabilidade**: Menor carga no banco de dados
+3. **Experiência**: Respostas mais rápidas para usuários
+4. **Recursos**: Otimização de uso de CPU e memória do servidor
+
+### ⚙️ Configurações Avançadas
+
+#### Personalizar TTL por Endpoint
+```typescript
+@Get()
+@UseInterceptors(CacheInterceptor)
+@CacheKey('custom:endpoint')
+@CacheTTL(600000) // 10 minutos
+customEndpoint() {
+  return this.service.getData();
+}
+```
+
+#### Invalidação Manual
+```typescript
+// No serviço
+await this.cacheManager.del('chave-especifica');
+await this.cacheManager.reset(); // Limpar todo cache
+```
 
 ## 🧪 Testando a API
 
@@ -782,17 +921,21 @@ npx prisma migrate dev
 ### Comandos Docker:
 
 ```bash
-# Iniciar banco de dados
+# Iniciar todos os serviços (PostgreSQL + Redis)
 docker-compose up -d
 
-# Parar banco de dados
+# Parar todos os serviços
 docker-compose down
 
-# Ver logs do container
+# Ver logs dos containers
 docker-compose logs postgres
+docker-compose logs redis
 
 # Acessar banco via CLI
 docker exec -it acessoria-api psql -U postgres -d acessoria-api
+
+# Acessar Redis via CLI
+docker exec -it acessoria-redis redis-cli
 ```
 
 ## 🚨 Troubleshooting

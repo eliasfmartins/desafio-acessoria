@@ -1,11 +1,16 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 
 @Injectable()
 export class TagsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   async create(createTagDto: CreateTagDto) {
     const { name, color } = createTagDto;
@@ -26,15 +31,33 @@ export class TagsService {
       },
     });
 
+    // Invalidar cache de tags após criação
+    await this.invalidateTagsCache();
+
     return tag;
   }
 
+  private async invalidateTagsCache() {
+    await this.cacheManager.del('tags:all');
+  }
+
   async findAll() {
+    const cacheKey = 'tags:all';
+    
+    // Tentar buscar no cache primeiro
+    const cachedTags = await this.cacheManager.get(cacheKey);
+    if (cachedTags) {
+      return cachedTags;
+    }
+
     const tags = await this.prisma.tag.findMany({
       orderBy: {
         name: 'asc',
       },
     });
+
+    // Armazenar no cache por 10 minutos (tags não mudam com frequência)
+    await this.cacheManager.set(cacheKey, tags, 600000);
 
     return tags;
   }

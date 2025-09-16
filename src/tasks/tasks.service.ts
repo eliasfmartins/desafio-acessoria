@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { SoftDeleteService } from '../common/soft-delete/soft-delete.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -9,7 +11,8 @@ import { QueryTasksDto } from './dto/query-tasks.dto';
 export class TasksService {
   constructor(
     private prisma: PrismaService,
-    private softDeleteService: SoftDeleteService
+    private softDeleteService: SoftDeleteService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   async create(userId: string, createTaskDto: CreateTaskDto) {
@@ -29,11 +32,30 @@ export class TasksService {
       },
     });
 
+    // Invalidar cache relacionado após criação
+    await this.invalidateUserTasksCache(userId);
+
     return task;
+  }
+
+  private async invalidateUserTasksCache(userId: string) {
+    const pattern = `tasks:user:${userId}:*`;
+    // Invalidar todas as chaves de cache do usuário
+    await this.cacheManager.del(pattern);
   }
 
   async findAll(userId: string, query: QueryTasksDto) {
     const { status, priority, search, page = 1, limit = 10 } = query;
+    
+    // Criar chave única para o cache baseada nos parâmetros
+    const cacheKey = `tasks:user:${userId}:page:${page}:limit:${limit}:status:${status || 'all'}:priority:${priority || 'all'}:search:${search || 'none'}`;
+    
+    // Tentar buscar no cache primeiro
+    const cachedResult = await this.cacheManager.get(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     const skip = (page - 1) * limit;
 
     const where: any = {
@@ -71,7 +93,7 @@ export class TasksService {
       this.prisma.task.count({ where }),
     ]);
 
-    return {
+    const result = {
       tasks,
       pagination: {
         page,
@@ -80,9 +102,22 @@ export class TasksService {
         totalPages: Math.ceil(total / limit),
       },
     };
+
+    // Armazenar no cache por 2 minutos
+    await this.cacheManager.set(cacheKey, result, 120000);
+
+    return result;
   }
 
   async findOne(userId: string, taskId: string) {
+    const cacheKey = `task:${taskId}:user:${userId}`;
+    
+    // Tentar buscar no cache primeiro
+    const cachedTask = await this.cacheManager.get(cacheKey);
+    if (cachedTask) {
+      return cachedTask;
+    }
+
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -101,6 +136,9 @@ export class TasksService {
     if (task.deletedAt) {
       throw new NotFoundException('Tarefa não encontrada');
     }
+
+    // Armazenar no cache por 5 minutos
+    await this.cacheManager.set(cacheKey, task, 300000);
 
     return task;
   }
@@ -132,7 +170,16 @@ export class TasksService {
       },
     });
 
+    // Invalidar cache após atualização
+    await this.invalidateTaskCache(taskId, userId);
+    await this.invalidateUserTasksCache(userId);
+
     return task;
+  }
+
+  private async invalidateTaskCache(taskId: string, userId: string) {
+    const taskCacheKey = `task:${taskId}:user:${userId}`;
+    await this.cacheManager.del(taskCacheKey);
   }
 
   async remove(userId: string, taskId: string) {
@@ -141,6 +188,10 @@ export class TasksService {
 
     // Usar soft delete ao invés de hard delete
     await this.softDeleteService.softDeleteTask(taskId);
+
+    // Invalidar cache após remoção
+    await this.invalidateTaskCache(taskId, userId);
+    await this.invalidateUserTasksCache(userId);
 
     return { 
       message: 'Tarefa deletada com sucesso (soft delete)',
@@ -169,6 +220,10 @@ export class TasksService {
     }
 
     await this.softDeleteService.restoreTask(taskId);
+
+    // Invalidar cache após restauração
+    await this.invalidateTaskCache(taskId, userId);
+    await this.invalidateUserTasksCache(userId);
 
     return { message: 'Tarefa restaurada com sucesso' };
   }

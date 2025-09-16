@@ -1,11 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class StatsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   async getDashboardStats(userId: string, userRole?: string) {
+    const cacheKey = `stats:user:${userId}:role:${userRole || 'USER'}`;
+    
+    // Tentar buscar no cache primeiro
+    const cachedStats = await this.cacheManager.get(cacheKey);
+    if (cachedStats) {
+      return cachedStats;
+    }
+
     // Buscar todas as tarefas do usuário
     const userTasks = await this.prisma.task.findMany({
       where: { userId },
@@ -13,18 +26,23 @@ export class StatsService {
 
     const userStats = this.calculateStats(userTasks);
 
+    let result: any = userStats;
+
     // Se for admin, buscar estatísticas de todos os usuários
     if (userRole === 'ADMIN') {
       const allTasks = await this.prisma.task.findMany();
       const adminStats = this.calculateStats(allTasks);
 
-      return {
+      result = {
         ...userStats,
         adminStats,
       };
     }
 
-    return userStats;
+    // Armazenar no cache por 3 minutos (estatísticas podem ser atualizadas com menos frequência)
+    await this.cacheManager.set(cacheKey, result, 180000);
+
+    return result;
   }
 
   private calculateStats(tasks: any[]) {

@@ -8,13 +8,15 @@ import {
   Delete, 
   UseGuards, 
   Request, 
-  Query 
+  Query,
+  UseInterceptors
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryTasksDto } from './dto/query-tasks.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CacheInterceptor, CacheKey, CacheTTL } from '../common/interceptors/cache.interceptor';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)

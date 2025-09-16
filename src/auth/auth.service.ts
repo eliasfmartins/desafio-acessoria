@@ -25,6 +25,13 @@ export class AuthService {
       throw new ConflictException('Email já está em uso');
     }
 
+    // Verificar se é o primeiro usuário (deve ser ADMIN)
+    const userCount = await this.prisma.user.count();
+    const isFirstUser = userCount === 0;
+
+    // Determinar o role do usuário
+    const userRole = isFirstUser ? 'ADMIN' : (role || 'USER');
+
     // Hash da senha
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -35,7 +42,7 @@ export class AuthService {
         email,
         name,
         password: hashedPassword,
-        role: role as any,
+        role: userRole as any,
       },
     });
 

@@ -252,8 +252,8 @@
 			"modified": 1694872800000,
 			"created": 1694872800000,
 			"url": "{{ _.base_url }}/tasks/{{ _.task_id }}",
-			"name": "Deletar Task",
-			"description": "Deletar task",
+			"name": "Deletar Task (Soft Delete)",
+			"description": "Deletar task com soft delete - pode ser restaurada",
 			"method": "DELETE",
 			"body": {},
 			"parameters": [],
@@ -265,6 +265,34 @@
 			],
 			"authentication": {},
 			"metaSortKey": -1694872800004,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tasks_restore",
+			"parentId": "fld_tasks",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tasks/{{ _.task_id }}/restore",
+			"name": "Restaurar Task",
+			"description": "Restaurar task que foi deletada com soft delete",
+			"method": "POST",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800005,
 			"isPrivate": false,
 			"settingStoreCookies": true,
 			"settingSendCookies": true,
@@ -588,8 +616,8 @@
 			"modified": 1694872800000,
 			"created": 1694872800000,
 			"url": "{{ _.base_url }}/admin/users/{{ _.user_id }}",
-			"name": "Deletar Usuário (Admin)",
-			"description": "Deletar usuário e suas tasks (apenas ADMIN)",
+			"name": "Deletar Usuário (Soft Delete)",
+			"description": "Deletar usuário e suas tasks com soft delete - pode ser restaurado (apenas ADMIN)",
 			"method": "DELETE",
 			"body": {},
 			"parameters": [],
@@ -601,6 +629,174 @@
 			],
 			"authentication": {},
 			"metaSortKey": -1694872800003,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_users_deleted",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/users/deleted",
+			"name": "Listar Usuários Deletados",
+			"description": "Listar usuários deletados com soft delete (apenas ADMIN)",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800004,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_tasks_deleted",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/tasks/deleted",
+			"name": "Listar Tasks Deletadas",
+			"description": "Listar tasks deletadas com soft delete (apenas ADMIN)",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800005,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_restore_user",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/users/{{ _.user_id }}/restore",
+			"name": "Restaurar Usuário",
+			"description": "Restaurar usuário deletado e suas tasks (apenas ADMIN)",
+			"method": "POST",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800006,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_restore_task",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/tasks/{{ _.task_id }}/restore",
+			"name": "Restaurar Task (Admin)",
+			"description": "Restaurar task deletada (apenas ADMIN)",
+			"method": "POST",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800007,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_hard_delete_user",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/users/{{ _.user_id }}/permanent",
+			"name": "🚨 Hard Delete Usuário",
+			"description": "⚠️ DELETAR PERMANENTEMENTE usuário - IRREVERSÍVEL! (apenas ADMIN)",
+			"method": "DELETE",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800008,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_hard_delete_task",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/tasks/{{ _.task_id }}/permanent",
+			"name": "🚨 Hard Delete Task",
+			"description": "⚠️ DELETAR PERMANENTEMENTE task - IRREVERSÍVEL! (apenas ADMIN)",
+			"method": "DELETE",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800009,
 			"isPrivate": false,
 			"settingStoreCookies": true,
 			"settingSendCookies": true,

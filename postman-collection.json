@@ -387,7 +387,7 @@
 					}
 				},
 				{
-					"name": "Deletar Task",
+					"name": "Deletar Task (Soft Delete)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -411,7 +411,36 @@
 								"{{task_id}}"
 							]
 						},
-						"description": "Deletar task"
+						"description": "Deletar task (soft delete) - a task é marcada como deletada mas pode ser restaurada"
+					}
+				},
+				{
+					"name": "Restaurar Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tasks/{{task_id}}/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tasks",
+								"{{task_id}}",
+								"restore"
+							]
+						},
+						"description": "Restaurar uma task que foi deletada (soft delete)"
 					}
 				}
 			],
@@ -783,7 +812,7 @@
 					}
 				},
 				{
-					"name": "Deletar Usuário (Admin)",
+					"name": "Deletar Usuário (Soft Delete)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -808,7 +837,185 @@
 								"{{user_id}}"
 							]
 						},
-						"description": "Deletar usuário e suas tasks (apenas ADMIN)"
+						"description": "Deletar usuário e suas tasks com soft delete (apenas ADMIN) - pode ser restaurado"
+					}
+				},
+				{
+					"name": "Listar Usuários Deletados",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/deleted",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"deleted"
+							]
+						},
+						"description": "Listar usuários deletados com soft delete (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "Listar Tasks Deletadas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/tasks/deleted",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"tasks",
+								"deleted"
+							]
+						},
+						"description": "Listar tasks deletadas com soft delete (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "Restaurar Usuário",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{user_id}}/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{user_id}}",
+								"restore"
+							]
+						},
+						"description": "Restaurar usuário deletado e suas tasks (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "Restaurar Task (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/tasks/{{task_id}}/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"tasks",
+								"{{task_id}}",
+								"restore"
+							]
+						},
+						"description": "Restaurar task deletada (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "🚨 Hard Delete Usuário",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{user_id}}/permanent",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{user_id}}",
+								"permanent"
+							]
+						},
+						"description": "⚠️ DELETAR PERMANENTEMENTE usuário - IRREVERSÍVEL! (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "🚨 Hard Delete Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/tasks/{{task_id}}/permanent",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"tasks",
+								"{{task_id}}",
+								"permanent"
+							]
+						},
+						"description": "⚠️ DELETAR PERMANENTEMENTE task - IRREVERSÍVEL! (apenas ADMIN)"
 					}
 				}
 			],

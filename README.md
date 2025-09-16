@@ -635,6 +635,22 @@ Lista usuários deletados (soft deleted).
 Authorization: Bearer <admin-token>
 ```
 
+#### DELETE `/admin/tasks/:id`
+Remove uma tarefa do sistema (soft delete). **⚠️ Esta ação pode ser desfeita usando restore.**
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Tarefa deletada com sucesso (soft delete)",
+  "canRestore": true
+}
+```
+
 #### GET `/admin/tasks/deleted`
 Lista tarefas deletadas (soft deleted).
 

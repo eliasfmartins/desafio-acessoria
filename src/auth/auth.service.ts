@@ -48,7 +48,7 @@ export class AuthService {
 
     // Gerar token JWT
     const payload = { sub: user.id, email: user.email, role: user.role };
-    const access_token = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const access_token = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRATION || '7d' });
 
     return {
       access_token,
@@ -82,7 +82,7 @@ export class AuthService {
 
     // Gerar token JWT
     const payload = { sub: user.id, email: user.email, role: user.role };
-    const access_token = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const access_token = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRATION || '7d' });
 
     return {
       access_token,

@@ -12,6 +12,7 @@ Esta aplicação é um sistema completo de gerenciamento de tarefas que inclui:
 - **Funcionalidades Administrativas** para gerenciar usuários
 - **Dashboard com Estatísticas** personalizadas por usuário
 - **Controle de Acesso** baseado em roles (USER/ADMIN)
+- **Soft Delete** para usuários e tarefas com possibilidade de restauração
 
 ## 🛠️ Pré-requisitos
 
@@ -164,6 +165,7 @@ Para facilitar os testes, criamos coleções prontas para **Insomnia** e **Postm
 - 🔐 **Login automático** com dados do seed
 - 📋 **CRUD completo** de tasks e tags
 - 👑 **Funcionalidades admin** pré-configuradas
+- 🗑️ **Soft Delete** com restore e hard delete
 - 🧪 **Testes automáticos** de validação
 - 📝 **Documentação integrada** em cada request
 - 🔄 **Variáveis automáticas** (tokens, IDs)
@@ -323,11 +325,34 @@ Authorization: Bearer <token>
 ```
 
 #### DELETE `/tasks/:id`
-Remove uma tarefa.
+Remove uma tarefa (soft delete).
 
 **Headers:**
 ```
 Authorization: Bearer <token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Tarefa deletada com sucesso (soft delete)",
+  "canRestore": true
+}
+```
+
+#### POST `/tasks/:id/restore`
+Restaura uma tarefa deletada.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Tarefa restaurada com sucesso"
+}
 ```
 
 ### 🏷️ Tags
@@ -447,7 +472,7 @@ Authorization: Bearer <admin-token>
 ```
 
 #### DELETE `/admin/users/:id`
-Remove um usuário do sistema. **⚠️ ATENÇÃO: Esta ação também remove todas as tasks do usuário.**
+Remove um usuário do sistema (soft delete). **⚠️ Esta ação também remove todas as tasks do usuário.**
 
 **Headers:**
 ```
@@ -457,8 +482,85 @@ Authorization: Bearer <admin-token>
 **Resposta:**
 ```json
 {
-  "message": "Usuário deletado com sucesso",
-  "deletedTasks": 5
+  "message": "Usuário deletado com sucesso (soft delete)",
+  "deletedTasks": 5,
+  "canRestore": true
+}
+```
+
+#### GET `/admin/users/deleted`
+Lista usuários deletados (soft deleted).
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+#### GET `/admin/tasks/deleted`
+Lista tarefas deletadas (soft deleted).
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+#### POST `/admin/users/:id/restore`
+Restaura um usuário deletado e suas tarefas.
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Usuário restaurado com sucesso"
+}
+```
+
+#### POST `/admin/tasks/:id/restore`
+Restaura uma tarefa deletada.
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Task restaurada com sucesso"
+}
+```
+
+#### DELETE `/admin/users/:id/permanent`
+Remove permanentemente um usuário do sistema (hard delete). **⚠️ ATENÇÃO: Esta ação é irreversível!**
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Usuário deletado permanentemente"
+}
+```
+
+#### DELETE `/admin/tasks/:id/permanent`
+Remove permanentemente uma tarefa do sistema (hard delete). **⚠️ ATENÇÃO: Esta ação é irreversível!**
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Task deletada permanentemente"
 }
 ```
 
@@ -531,6 +633,92 @@ Authorization: Bearer <token>
 ```
 
 > **💡 Nota**: Usuários ADMIN recebem um campo adicional `adminStats` com estatísticas de todos os usuários do sistema, permitindo controle total e visão geral.
+
+## 🗑️ Soft Delete
+
+O sistema implementa **Soft Delete** para usuários e tarefas, permitindo que registros sejam "deletados" sem serem removidos permanentemente do banco de dados. Isso oferece maior segurança e possibilidade de recuperação.
+
+### 🔄 Como Funciona
+
+- **Soft Delete**: Registros são marcados com `deletedAt` (timestamp) ao invés de serem removidos
+- **Filtros Automáticos**: Registros deletados não aparecem nas listas normais
+- **Restauração**: Registros podem ser restaurados a qualquer momento
+- **Hard Delete**: Opção de remoção permanente (irreversível)
+
+### 📋 Funcionalidades Disponíveis
+
+#### Para Usuários:
+- ✅ **Soft Delete**: `DELETE /admin/users/:id`
+- ✅ **Listar Deletados**: `GET /admin/users/deleted`
+- ✅ **Restaurar**: `POST /admin/users/:id/restore`
+- ✅ **Hard Delete**: `DELETE /admin/users/:id/permanent`
+
+#### Para Tarefas:
+- ✅ **Soft Delete**: `DELETE /tasks/:id` (usuário) ou `DELETE /admin/tasks/:id` (admin)
+- ✅ **Listar Deletadas**: `GET /admin/tasks/deleted`
+- ✅ **Restaurar**: `POST /tasks/:id/restore` (usuário) ou `POST /admin/tasks/:id/restore` (admin)
+- ✅ **Hard Delete**: `DELETE /admin/tasks/:id/permanent`
+
+### 🎯 Comportamento Especial
+
+#### Ao Deletar um Usuário:
+1. **Usuário** é marcado como deletado (`deletedAt`)
+2. **Todas as tasks** do usuário são automaticamente deletadas
+3. **Usuário** não aparece mais na lista normal
+4. **Tasks** não aparecem mais nas listas normais
+
+#### Ao Restaurar um Usuário:
+1. **Usuário** é restaurado (`deletedAt = null`)
+2. **Todas as tasks** do usuário são automaticamente restauradas
+3. **Usuário** volta a aparecer na lista normal
+4. **Tasks** voltam a aparecer nas listas normais
+
+### 🔍 Exemplos de Uso
+
+#### 1. Deletar e Restaurar uma Tarefa
+```bash
+# Deletar tarefa (soft delete)
+curl -X DELETE http://localhost:3000/tasks/task-id \
+  -H "Authorization: Bearer <token>"
+
+# Listar tarefas (tarefa deletada não aparece)
+curl -X GET http://localhost:3000/tasks \
+  -H "Authorization: Bearer <token>"
+
+# Restaurar tarefa
+curl -X POST http://localhost:3000/tasks/task-id/restore \
+  -H "Authorization: Bearer <token>"
+```
+
+#### 2. Deletar e Restaurar um Usuário (Admin)
+```bash
+# Deletar usuário (soft delete)
+curl -X DELETE http://localhost:3000/admin/users/user-id \
+  -H "Authorization: Bearer <admin-token>"
+
+# Listar usuários deletados
+curl -X GET http://localhost:3000/admin/users/deleted \
+  -H "Authorization: Bearer <admin-token>"
+
+# Restaurar usuário
+curl -X POST http://localhost:3000/admin/users/user-id/restore \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+#### 3. Hard Delete (Permanente)
+```bash
+# Deletar permanentemente (irreversível)
+curl -X DELETE http://localhost:3000/admin/users/user-id/permanent \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+### ⚠️ Importante
+
+- **Soft Delete** é o comportamento padrão para todas as operações de delete
+- **Hard Delete** só está disponível para administradores
+- **Hard Delete** é **irreversível** - use com cuidado!
+- **Filtros automáticos** garantem que registros deletados não apareçam nas listas normais
+- **Restauração** funciona tanto para usuários quanto para tarefas individuais
 
 ## 🔒 Autenticação e Autorização
 

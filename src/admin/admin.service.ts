@@ -1,12 +1,19 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { SoftDeleteService } from '../common/soft-delete/soft-delete.service';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private softDeleteService: SoftDeleteService
+  ) {}
 
   async findAllUsers() {
     const users = await this.prisma.user.findMany({
+      where: {
+        deletedAt: null, // Filtrar apenas usuários não deletados
+      },
       select: {
         id: true,
         email: true,
@@ -16,7 +23,11 @@ export class AdminService {
         updatedAt: true,
         _count: {
           select: {
-            tasks: true,
+            tasks: {
+              where: {
+                deletedAt: null, // Filtrar apenas tasks não deletadas
+              },
+            },
           },
         },
       },
@@ -30,6 +41,9 @@ export class AdminService {
 
   async findAllTasks() {
     const tasks = await this.prisma.task.findMany({
+      where: {
+        deletedAt: null, // Filtrar apenas tasks não deletadas
+      },
       include: {
         user: {
           select: {
@@ -88,22 +102,94 @@ export class AdminService {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    // Primeiro, vamos deletar todas as tasks do usuário
-    // Isso é necessário porque a constraint está como RESTRICT na migração
-    if (user.tasks.length > 0) {
-      await this.prisma.task.deleteMany({
-        where: { userId },
-      });
-    }
+    // Usar soft delete ao invés de hard delete
+    await this.softDeleteService.softDeleteUser(userId);
 
-    // Agora deleta o usuário
-    await this.prisma.user.delete({
+    return {
+      message: 'Usuário deletado com sucesso (soft delete)',
+      deletedTasks: user.tasks.length,
+      canRestore: true,
+    };
+  }
+
+  // Novos métodos para soft delete
+  async findDeletedUsers() {
+    return this.softDeleteService.findDeletedUsers();
+  }
+
+  async findDeletedTasks() {
+    return this.softDeleteService.findDeletedTasks();
+  }
+
+  async restoreUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
 
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    if (!user.deletedAt) {
+      throw new BadRequestException('Usuário não está deletado');
+    }
+
+    await this.softDeleteService.restoreUser(userId);
+
     return {
-      message: 'Usuário deletado com sucesso',
-      deletedTasks: user.tasks.length,
+      message: 'Usuário restaurado com sucesso',
+    };
+  }
+
+  async restoreTask(taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task não encontrada');
+    }
+
+    if (!task.deletedAt) {
+      throw new BadRequestException('Task não está deletada');
+    }
+
+    await this.softDeleteService.restoreTask(taskId);
+
+    return {
+      message: 'Task restaurada com sucesso',
+    };
+  }
+
+  async hardDeleteUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    await this.softDeleteService.hardDeleteUser(userId);
+
+    return {
+      message: 'Usuário deletado permanentemente',
+    };
+  }
+
+  async hardDeleteTask(taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task) {
+      throw new NotFoundException('Task não encontrada');
+    }
+
+    await this.softDeleteService.hardDeleteTask(taskId);
+
+    return {
+      message: 'Task deletada permanentemente',
     };
   }
 }

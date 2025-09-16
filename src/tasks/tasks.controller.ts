@@ -45,5 +45,11 @@ export class TasksController {
   remove(@Request() req, @Param('id') id: string) {
     return this.tasksService.remove(req.user.id, id);
   }
+
+  // Rota para restaurar task deletada
+  @Post(':id/restore')
+  restore(@Request() req, @Param('id') id: string) {
+    return this.tasksService.restore(req.user.id, id);
+  }
 }
 

@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { SoftDeleteService } from '../common/soft-delete/soft-delete.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryTasksDto } from './dto/query-tasks.dto';
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private softDeleteService: SoftDeleteService
+  ) {}
 
   async create(userId: string, createTaskDto: CreateTaskDto) {
     const { title, description, status = 'PENDING', priority = 'MEDIUM', dueDate } = createTaskDto;
@@ -34,6 +38,7 @@ export class TasksService {
 
     const where: any = {
       userId,
+      deletedAt: null, // Filtrar apenas tasks não deletadas
     };
 
     if (status) {
@@ -93,6 +98,10 @@ export class TasksService {
       throw new ForbiddenException('Você não tem permissão para acessar esta tarefa');
     }
 
+    if (task.deletedAt) {
+      throw new NotFoundException('Tarefa não encontrada');
+    }
+
     return task;
   }
 
@@ -130,10 +139,37 @@ export class TasksService {
     // Verificar se a tarefa existe e pertence ao usuário
     await this.findOne(userId, taskId);
 
-    await this.prisma.task.delete({
+    // Usar soft delete ao invés de hard delete
+    await this.softDeleteService.softDeleteTask(taskId);
+
+    return { 
+      message: 'Tarefa deletada com sucesso (soft delete)',
+      canRestore: true
+    };
+  }
+
+  async restore(userId: string, taskId: string) {
+    // Verificar se a tarefa existe
+    const task = await this.prisma.task.findUnique({
       where: { id: taskId },
     });
 
-    return { message: 'Tarefa deletada com sucesso' };
+    if (!task) {
+      throw new NotFoundException('Tarefa não encontrada');
+    }
+
+    // Verificar se a tarefa pertence ao usuário
+    if (task.userId !== userId) {
+      throw new ForbiddenException('Você não tem permissão para restaurar esta tarefa');
+    }
+
+    // Verificar se a tarefa está deletada
+    if (!task.deletedAt) {
+      throw new BadRequestException('Tarefa não está deletada');
+    }
+
+    await this.softDeleteService.restoreTask(taskId);
+
+    return { message: 'Tarefa restaurada com sucesso' };
   }
 }

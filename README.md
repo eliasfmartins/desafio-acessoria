@@ -340,6 +340,22 @@ Authorization: Bearer <admin-token>
 }
 ```
 
+#### DELETE `/admin/users/:id`
+Remove um usuário do sistema. **⚠️ ATENÇÃO: Esta ação também remove todas as tasks do usuário.**
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Resposta:**
+```json
+{
+  "message": "Usuário deletado com sucesso",
+  "deletedTasks": 5
+}
+```
+
 ### 📊 Estatísticas
 
 #### GET `/stats/dashboard`

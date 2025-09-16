@@ -75,5 +75,36 @@ export class AdminService {
 
     return updatedUser;
   }
+
+  async deleteUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        tasks: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    // Primeiro, vamos deletar todas as tasks do usuário
+    // Isso é necessário porque a constraint está como RESTRICT na migração
+    if (user.tasks.length > 0) {
+      await this.prisma.task.deleteMany({
+        where: { userId },
+      });
+    }
+
+    // Agora deleta o usuário
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return {
+      message: 'Usuário deletado com sucesso',
+      deletedTasks: user.tasks.length,
+    };
+  }
 }
 

@@ -4,7 +4,8 @@ import {
   Patch, 
   Param, 
   Body, 
-  UseGuards 
+  UseGuards,
+  Delete 
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -31,5 +32,10 @@ export class AdminController {
     @Body() body: { role: 'USER' | 'ADMIN' }
   ) {
     return this.adminService.updateUserRole(id, body.role);
+  }
+
+  @Delete('users/:id')
+  deleteUser(@Param('id') id: string) {
+    return this.adminService.deleteUser(id);
   }
 }

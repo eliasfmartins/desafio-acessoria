@@ -1,35 +1,58 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class SoftDeleteService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private logger: LoggerService,
+  ) {}
 
   /**
    * Soft delete para usuários
    */
   async softDeleteUser(userId: string) {
+    const startTime = Date.now();
+    
     // Primeiro, soft delete todas as tasks do usuário
-    await this.prisma.task.updateMany({
+    const tasksResult = await this.prisma.task.updateMany({
       where: { userId },
       data: { deletedAt: new Date() },
     });
 
     // Depois, soft delete o usuário
-    return this.prisma.user.update({
+    const userResult = await this.prisma.user.update({
       where: { id: userId },
       data: { deletedAt: new Date() },
     });
+
+    const duration = Date.now() - startTime;
+    this.logger.logBusiness('user_soft_deleted', 'User', userId, userId, {
+      deletedTasks: tasksResult.count,
+      duration: `${duration}ms`
+    });
+
+    return userResult;
   }
 
   /**
    * Soft delete para tasks
    */
   async softDeleteTask(taskId: string) {
-    return this.prisma.task.update({
+    const startTime = Date.now();
+    
+    const result = await this.prisma.task.update({
       where: { id: taskId },
       data: { deletedAt: new Date() },
     });
+
+    const duration = Date.now() - startTime;
+    this.logger.logBusiness('task_soft_deleted', 'Task', taskId, result.userId, {
+      duration: `${duration}ms`
+    });
+
+    return result;
   }
 
   /**

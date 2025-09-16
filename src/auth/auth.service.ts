@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { LoggerService } from '../common/logger/logger.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -11,6 +12,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private logger: LoggerService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
@@ -22,6 +24,7 @@ export class AuthService {
     });
 
     if (existingUser) {
+      this.logger.logAuth('register', email, false, undefined, undefined);
       throw new ConflictException('Email já está em uso');
     }
 
@@ -50,6 +53,12 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const access_token = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRATION || '7d' });
 
+    this.logger.logAuth('register', email, true, undefined, undefined);
+    this.logger.logBusiness('user_registered', 'User', user.id, user.id, { 
+      role: user.role, 
+      isFirstUser 
+    });
+
     return {
       access_token,
       user: {
@@ -70,6 +79,7 @@ export class AuthService {
     });
 
     if (!user) {
+      this.logger.logAuth('login', email, false, undefined, undefined);
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
@@ -77,12 +87,18 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      this.logger.logAuth('login', email, false, undefined, undefined);
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
     // Gerar token JWT
     const payload = { sub: user.id, email: user.email, role: user.role };
     const access_token = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRATION || '7d' });
+
+    this.logger.logAuth('login', email, true, undefined, undefined);
+    this.logger.logBusiness('user_login', 'User', user.id, user.id, { 
+      role: user.role 
+    });
 
     return {
       access_token,

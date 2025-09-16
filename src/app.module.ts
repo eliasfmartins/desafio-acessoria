@@ -7,9 +7,10 @@ import { TasksModule } from './tasks/tasks.module';
 import { TagsModule } from './tags/tags.module';
 import { AdminModule } from './admin/admin.module';
 import { StatsModule } from './stats/stats.module';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
-  imports: [AuthModule, TasksModule, TagsModule, AdminModule, StatsModule],
+  imports: [LoggerModule, AuthModule, TasksModule, TagsModule, AdminModule, StatsModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

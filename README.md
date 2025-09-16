@@ -1,98 +1,493 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Desafio Acessoria - API de Gerenciamento de Tarefas
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Uma API RESTful desenvolvida com NestJS para gerenciamento de tarefas, usuários e funcionalidades administrativas.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Descrição do Projeto
 
-## Description
+Esta aplicação é um sistema completo de gerenciamento de tarefas que inclui:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Autenticação JWT** com registro e login de usuários
+- **Gerenciamento de Tarefas** com CRUD completo
+- **Sistema de Tags** para categorização
+- **Funcionalidades Administrativas** para gerenciar usuários
+- **Dashboard com Estatísticas** personalizadas por usuário
+- **Controle de Acesso** baseado em roles (USER/ADMIN)
 
-## Project setup
+## 🛠️ Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado:
+
+- [Node.js](https://nodejs.org/) (versão 16 ou superior)
+- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
+- [Git](https://git-scm.com/)
+
+## 🚀 Instalação e Configuração
+
+### 1. Clone o repositório
 
 ```bash
-$ npm install
+git clone <url-do-repositorio>
+cd desafio-acessoria
 ```
 
-## Compile and run the project
+### 2. Instale as dependências
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
+### 3. Configure as variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+```env
+DATABASE_URL="postgresql://postgres:docker@localhost:5432/acessoria-api?schema=public"
+JWT_SECRET="your-secret-key"
+JWT_EXPIRATION="7d"
+PORT=3000
+```
+
+### 4. Inicie o banco de dados com Docker
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker-compose up -d
 ```
 
-## Deployment
+Este comando irá:
+- Criar um container PostgreSQL
+- Expor a porta 5432
+- Criar o banco `acessoria-api`
+- Configurar usuário `postgres` com senha `docker`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 5. Execute as migrações do Prisma
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma migrate dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 6. Gere o cliente Prisma
 
-## Resources
+```bash
+npx prisma generate
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## 🏃‍♂️ Como Rodar o Projeto
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Desenvolvimento
 
-## Support
+```bash
+npm run start:dev
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Produção
 
-## Stay in touch
+```bash
+npm run build
+npm run start:prod
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+A aplicação estará disponível em: `http://localhost:3000`
 
-## License
+## 📚 Documentação dos Endpoints
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### 🔐 Autenticação
+
+#### POST `/auth/register`
+Registra um novo usuário no sistema.
+
+**Body:**
+```json
+{
+  "email": "usuario@exemplo.com",
+  "name": "Nome do Usuário",
+  "password": "123456",
+  "role": "USER" // opcional, padrão: USER
+}
+```
+
+**Resposta:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "uuid",
+    "email": "usuario@exemplo.com",
+    "name": "Nome do Usuário",
+    "role": "USER"
+  }
+}
+```
+
+#### POST `/auth/login`
+Realiza login e retorna token JWT.
+
+**Body:**
+```json
+{
+  "email": "usuario@exemplo.com",
+  "password": "123456"
+}
+```
+
+**Resposta:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "uuid",
+    "email": "usuario@exemplo.com",
+    "name": "Nome do Usuário",
+    "role": "USER"
+  }
+}
+```
+
+#### GET `/auth/profile`
+Retorna dados do usuário autenticado.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+### 📝 Tarefas
+
+#### POST `/tasks`
+Cria uma nova tarefa.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "title": "Título da Tarefa",
+  "description": "Descrição da tarefa",
+  "status": "PENDING", // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  "priority": "MEDIUM", // LOW, MEDIUM, HIGH, URGENT
+  "dueDate": "2024-12-31T23:59:59.000Z" // opcional
+}
+```
+
+#### GET `/tasks`
+Lista tarefas do usuário com filtros e paginação.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `status`: Filtrar por status (PENDING, IN_PROGRESS, COMPLETED, CANCELLED)
+- `priority`: Filtrar por prioridade (LOW, MEDIUM, HIGH, URGENT)
+- `search`: Buscar no título e descrição
+- `page`: Número da página (padrão: 1)
+- `limit`: Itens por página (padrão: 10)
+
+**Exemplo:**
+```
+GET /tasks?status=PENDING&priority=HIGH&page=1&limit=5
+```
+
+#### GET `/tasks/:id`
+Busca uma tarefa específica.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+#### PATCH `/tasks/:id`
+Atualiza uma tarefa.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "title": "Novo Título",
+  "status": "COMPLETED",
+  "priority": "HIGH"
+}
+```
+
+#### DELETE `/tasks/:id`
+Remove uma tarefa.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+### 🏷️ Tags
+
+#### POST `/tags`
+Cria uma nova tag.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "name": "Urgente",
+  "color": "#FF0000"
+}
+```
+
+#### GET `/tags`
+Lista todas as tags disponíveis.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+#### GET `/tags/:id`
+Busca uma tag específica.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+#### PATCH `/tags/:id`
+Atualiza uma tag.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "name": "Novo Nome",
+  "color": "#00FF00"
+}
+```
+
+#### DELETE `/tags/:id`
+Remove uma tag.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+#### POST `/tags/tasks/:taskId`
+Adiciona uma tag a uma tarefa.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Body:**
+```json
+{
+  "tagId": "uuid-da-tag"
+}
+```
+
+#### DELETE `/tags/tasks/:taskId/:tagId`
+Remove uma tag de uma tarefa.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+### 👑 Funcionalidades Administrativas
+
+> **⚠️ Apenas usuários com role ADMIN podem acessar estas rotas**
+
+#### GET `/admin/users`
+Lista todos os usuários do sistema.
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+#### GET `/admin/tasks`
+Lista todas as tarefas do sistema.
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+#### PATCH `/admin/users/:id/role`
+Altera o role de um usuário.
+
+**Headers:**
+```
+Authorization: Bearer <admin-token>
+```
+
+**Body:**
+```json
+{
+  "role": "ADMIN" // ou "USER"
+}
+```
+
+### 📊 Estatísticas
+
+#### GET `/stats/dashboard`
+Retorna estatísticas personalizadas do usuário.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Resposta:**
+```json
+{
+  "totalTasks": 42,
+  "tasksByStatus": {
+    "PENDING": 10,
+    "IN_PROGRESS": 5,
+    "COMPLETED": 25,
+    "CANCELLED": 2
+  },
+  "tasksByPriority": {
+    "LOW": 8,
+    "MEDIUM": 20,
+    "HIGH": 10,
+    "URGENT": 4
+  },
+  "overdueTasks": 3,
+  "completionRate": 59.5
+}
+```
+
+## 🔒 Autenticação e Autorização
+
+### Como obter um token:
+
+1. **Registre-se** ou **faça login** usando `/auth/register` ou `/auth/login`
+2. **Copie o token** da resposta (campo `access_token`)
+3. **Use o token** no header `Authorization: Bearer <token>`
+
+### Roles do Sistema:
+
+- **USER**: Usuário comum, pode gerenciar suas próprias tarefas
+- **ADMIN**: Administrador, pode acessar todas as funcionalidades administrativas
+
+### Regras Especiais:
+
+- O **primeiro usuário** registrado no sistema é automaticamente **ADMIN**
+- Usuários só podem ver/editar/deletar suas próprias tarefas
+- Apenas **ADMINs** podem acessar rotas `/admin/*`
+
+## 🗄️ Banco de Dados
+
+### Estrutura:
+
+- **Users**: Usuários do sistema
+- **Tasks**: Tarefas dos usuários
+- **Tags**: Tags para categorização
+- **Relacionamentos**: User → Tasks (1:N), Tasks → Tags (N:N)
+
+### Comandos úteis:
+
+```bash
+# Visualizar banco no Prisma Studio
+npx prisma studio
+
+# Resetar banco de dados
+npx prisma migrate reset
+
+# Aplicar migrações
+npx prisma migrate dev
+```
+
+## 🧪 Testando a API
+
+### Usando Insomnia/Postman:
+
+1. **Configure a base URL**: `http://localhost:3000`
+2. **Faça login** para obter o token
+3. **Configure o header**: `Authorization: Bearer <seu-token>`
+4. **Teste os endpoints** conforme a documentação
+
+### Exemplo de fluxo completo:
+
+1. `POST /auth/register` → Obter token
+2. `POST /tasks` → Criar tarefa
+3. `GET /tasks` → Listar tarefas
+4. `GET /stats/dashboard` → Ver estatísticas
+
+## 🐳 Docker
+
+### Comandos Docker:
+
+```bash
+# Iniciar banco de dados
+docker-compose up -d
+
+# Parar banco de dados
+docker-compose down
+
+# Ver logs do container
+docker-compose logs postgres
+
+# Acessar banco via CLI
+docker exec -it acessoria-api psql -U postgres -d acessoria-api
+```
+
+## 🚨 Troubleshooting
+
+### Problemas comuns:
+
+1. **Erro de conexão com banco**:
+   - Verifique se o Docker está rodando
+   - Execute `docker-compose up -d`
+
+2. **Token inválido**:
+   - Faça login novamente para obter um token fresco
+   - Verifique se o token está no header correto
+
+3. **Erro 401 Unauthorized**:
+   - Verifique se o token está correto
+   - Para rotas admin, certifique-se de que o usuário é ADMIN
+
+4. **Erro de validação**:
+   - Verifique se todos os campos obrigatórios estão preenchidos
+   - Consulte a documentação dos DTOs
+
+## 📝 Scripts Disponíveis
+
+```bash
+npm run start:dev    # Desenvolvimento com hot-reload
+npm run build        # Compilar para produção
+npm run start:prod   # Executar em produção
+npm run test         # Executar testes
+npm run lint         # Verificar código
+```
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'feat: add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+**Desenvolvido com ❤️ usando NestJS**

@@ -16,3 +16,4 @@ export class RegisterDto {
   @IsString()
   role?: 'USER' | 'ADMIN';
 }
+

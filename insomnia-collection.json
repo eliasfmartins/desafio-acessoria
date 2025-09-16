@@ -1,0 +1,741 @@
+{
+	"_type": "export",
+	"__export_format": 4,
+	"__export_date": "2025-09-16T14:00:00.000Z",
+	"__export_source": "insomnia.desktop.app:v2023.5.8",
+	"resources": [
+		{
+			"_id": "req_auth_login",
+			"parentId": "fld_auth",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/auth/login",
+			"name": "Login",
+			"description": "Fazer login na API",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"email\": \"admin@acessoria.com\",\n  \"password\": \"password123\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800000,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_auth_register",
+			"parentId": "fld_auth",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/auth/register",
+			"name": "Registrar Usuário",
+			"description": "Criar novo usuário",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"email\": \"novo@acessoria.com\",\n  \"password\": \"password123\",\n  \"name\": \"Novo Usuário\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800001,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_auth_profile",
+			"parentId": "fld_auth",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/auth/profile",
+			"name": "Perfil do Usuário",
+			"description": "Obter informações do usuário logado",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800002,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tasks_create",
+			"parentId": "fld_tasks",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tasks",
+			"name": "Criar Task",
+			"description": "Criar nova task",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"title\": \"Nova Task de Teste\",\n  \"description\": \"Descrição da nova task\",\n  \"priority\": \"HIGH\",\n  \"status\": \"PENDING\",\n  \"dueDate\": \"2024-12-31T23:59:59.000Z\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800000,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tasks_list",
+			"parentId": "fld_tasks",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tasks",
+			"name": "Listar Tasks",
+			"description": "Listar todas as tasks do usuário",
+			"method": "GET",
+			"body": {},
+			"parameters": [
+				{
+					"name": "page",
+					"value": "1",
+					"description": "Página (opcional)"
+				},
+				{
+					"name": "limit",
+					"value": "10",
+					"description": "Limite por página (opcional)"
+				},
+				{
+					"name": "status",
+					"value": "PENDING",
+					"description": "Filtrar por status (opcional)"
+				},
+				{
+					"name": "priority",
+					"value": "HIGH",
+					"description": "Filtrar por prioridade (opcional)"
+				},
+				{
+					"name": "search",
+					"value": "teste",
+					"description": "Buscar por texto (opcional)"
+				}
+			],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800001,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tasks_get",
+			"parentId": "fld_tasks",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tasks/{{ _.task_id }}",
+			"name": "Obter Task",
+			"description": "Obter task específica por ID",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800002,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tasks_update",
+			"parentId": "fld_tasks",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tasks/{{ _.task_id }}",
+			"name": "Atualizar Task",
+			"description": "Atualizar task existente",
+			"method": "PATCH",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"title\": \"Task Atualizada\",\n  \"status\": \"IN_PROGRESS\",\n  \"priority\": \"MEDIUM\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800003,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tasks_delete",
+			"parentId": "fld_tasks",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tasks/{{ _.task_id }}",
+			"name": "Deletar Task",
+			"description": "Deletar task",
+			"method": "DELETE",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800004,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_create",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags",
+			"name": "Criar Tag",
+			"description": "Criar nova tag",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"name\": \"Nova Tag\",\n  \"color\": \"#FF5733\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800000,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_list",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags",
+			"name": "Listar Tags",
+			"description": "Listar todas as tags",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800001,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_get",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags/{{ _.tag_id }}",
+			"name": "Obter Tag",
+			"description": "Obter tag específica por ID",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800002,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_update",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags/{{ _.tag_id }}",
+			"name": "Atualizar Tag",
+			"description": "Atualizar tag existente",
+			"method": "PATCH",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"name\": \"Tag Atualizada\",\n  \"color\": \"#33FF57\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800003,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_delete",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags/{{ _.tag_id }}",
+			"name": "Deletar Tag",
+			"description": "Deletar tag",
+			"method": "DELETE",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800004,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_add_to_task",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags/tasks/{{ _.task_id }}",
+			"name": "Adicionar Tag à Task",
+			"description": "Associar tag a uma task",
+			"method": "POST",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"tagId\": \"{{ _.tag_id }}\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800005,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_tags_remove_from_task",
+			"parentId": "fld_tags",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/tags/tasks/{{ _.task_id }}/{{ _.tag_id }}",
+			"name": "Remover Tag da Task",
+			"description": "Remover associação entre tag e task",
+			"method": "DELETE",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800006,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_users",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/users",
+			"name": "Listar Usuários (Admin)",
+			"description": "Listar todos os usuários (apenas ADMIN)",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800000,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_tasks",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/tasks",
+			"name": "Listar Tasks (Admin)",
+			"description": "Listar todas as tasks do sistema (apenas ADMIN)",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800001,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_user_role",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/users/{{ _.user_id }}/role",
+			"name": "Alterar Role do Usuário",
+			"description": "Alterar role de um usuário (apenas ADMIN)",
+			"method": "PATCH",
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"role\": \"ADMIN\"\n}"
+			},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Content-Type",
+					"value": "application/json"
+				},
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800002,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_admin_delete_user",
+			"parentId": "fld_admin",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/admin/users/{{ _.user_id }}",
+			"name": "Deletar Usuário (Admin)",
+			"description": "Deletar usuário e suas tasks (apenas ADMIN)",
+			"method": "DELETE",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.admin_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800003,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "req_stats_dashboard",
+			"parentId": "fld_stats",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"url": "{{ _.base_url }}/stats/dashboard",
+			"name": "Dashboard de Estatísticas",
+			"description": "Obter estatísticas do usuário",
+			"method": "GET",
+			"body": {},
+			"parameters": [],
+			"headers": [
+				{
+					"name": "Authorization",
+					"value": "Bearer {{ _.auth_token }}"
+				}
+			],
+			"authentication": {},
+			"metaSortKey": -1694872800000,
+			"isPrivate": false,
+			"settingStoreCookies": true,
+			"settingSendCookies": true,
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingRebuildPath": true,
+			"settingFollowRedirects": "global",
+			"_type": "request"
+		},
+		{
+			"_id": "fld_auth",
+			"parentId": "wrk_acessoria_api",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "🔐 Autenticação",
+			"description": "Endpoints de autenticação e autorização",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1694872800000,
+			"_type": "request_group"
+		},
+		{
+			"_id": "fld_tasks",
+			"parentId": "wrk_acessoria_api",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "📋 Tasks",
+			"description": "Gerenciamento de tasks",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1694872800001,
+			"_type": "request_group"
+		},
+		{
+			"_id": "fld_tags",
+			"parentId": "wrk_acessoria_api",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "🏷️ Tags",
+			"description": "Gerenciamento de tags",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1694872800002,
+			"_type": "request_group"
+		},
+		{
+			"_id": "fld_admin",
+			"parentId": "wrk_acessoria_api",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "👑 Admin",
+			"description": "Funcionalidades administrativas (apenas ADMIN)",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1694872800003,
+			"_type": "request_group"
+		},
+		{
+			"_id": "fld_stats",
+			"parentId": "wrk_acessoria_api",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "📊 Estatísticas",
+			"description": "Dashboard e estatísticas",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1694872800004,
+			"_type": "request_group"
+		},
+		{
+			"_id": "wrk_acessoria_api",
+			"parentId": null,
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "Acessoria API",
+			"description": "API de gerenciamento de tasks e usuários",
+			"scope": "collection",
+			"_type": "workspace"
+		},
+		{
+			"_id": "env_base",
+			"parentId": "wrk_acessoria_api",
+			"modified": 1694872800000,
+			"created": 1694872800000,
+			"name": "Base Environment",
+			"data": {
+				"base_url": "http://localhost:3000",
+				"auth_token": "",
+				"admin_token": "",
+				"user_id": "",
+				"task_id": "",
+				"tag_id": ""
+			},
+			"dataPropertyOrder": {
+				"&": [
+					"base_url",
+					"auth_token",
+					"admin_token",
+					"user_id",
+					"task_id",
+					"tag_id"
+				]
+			},
+			"color": null,
+			"isPrivate": false,
+			"metaSortKey": 1694872800000,
+			"_type": "environment"
+		}
+	]
+}

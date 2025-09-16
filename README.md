@@ -71,6 +71,25 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
+### 7. Popule o banco com dados de exemplo (Opcional)
+
+```bash
+npm run prisma:seed
+```
+
+Este comando criará:
+- **5 usuários** (1 admin + 4 usuários regulares)
+- **5 tags** predefinidas (Urgente, Importante, Desenvolvimento, Bug, Feature)
+- **20 tasks** (5 para cada usuário regular)
+- **Relacionamentos** entre tasks e tags
+
+**Usuários criados:**
+- `admin@acessoria.com` (ADMIN) - senha: `password123`
+- `joao@acessoria.com` (USER) - senha: `password123`
+- `maria@acessoria.com` (USER) - senha: `password123`
+- `pedro@acessoria.com` (USER) - senha: `password123`
+- `ana@acessoria.com` (USER) - senha: `password123`
+
 ## 🏃‍♂️ Como Rodar o Projeto
 
 ### Desenvolvimento
@@ -87,6 +106,75 @@ npm run start:prod
 ```
 
 A aplicação estará disponível em: `http://localhost:3000`
+
+## 🧪 Testando a API
+
+### 1. Fazer Login
+
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@acessoria.com",
+    "password": "password123"
+  }'
+```
+
+### 2. Listar Tasks (com token)
+
+```bash
+curl -X GET http://localhost:3000/tasks \
+  -H "Authorization: Bearer SEU_TOKEN_AQUI"
+```
+
+### 3. Listar Usuários (admin)
+
+```bash
+curl -X GET http://localhost:3000/admin/users \
+  -H "Authorization: Bearer SEU_TOKEN_ADMIN_AQUI"
+```
+
+### 4. Ver Estatísticas
+
+```bash
+curl -X GET http://localhost:3000/stats/dashboard \
+  -H "Authorization: Bearer SEU_TOKEN_AQUI"
+```
+
+## 🚀 Coleções para Testes
+
+Para facilitar os testes, criamos coleções prontas para **Insomnia** e **Postman**:
+
+### 📁 Arquivos Disponíveis
+- **`insomnia-collection.json`** - Coleção para Insomnia
+- **`postman-collection.json`** - Coleção para Postman
+- **`API_COLLECTIONS.md`** - Instruções detalhadas
+
+### 🔧 Como Importar
+
+#### Insomnia
+1. Abra o Insomnia
+2. **Import** → **File** → Selecione `insomnia-collection.json`
+
+#### Postman
+1. Abra o Postman
+2. **Import** → Arraste `postman-collection.json`
+
+### ✨ Funcionalidades das Coleções
+- 🔐 **Login automático** com dados do seed
+- 📋 **CRUD completo** de tasks e tags
+- 👑 **Funcionalidades admin** pré-configuradas
+- 🧪 **Testes automáticos** de validação
+- 📝 **Documentação integrada** em cada request
+- 🔄 **Variáveis automáticas** (tokens, IDs)
+
+### 🎯 Fluxo de Teste
+1. **Execute o seed**: `npm run prisma:seed`
+2. **Importe a coleção** no seu cliente preferido
+3. **Faça login** (token salvo automaticamente)
+4. **Teste todas as funcionalidades** com dados reais
+
+**Veja `API_COLLECTIONS.md` para instruções detalhadas!**
 
 ## 📚 Documentação dos Endpoints
 
@@ -490,6 +578,28 @@ npm run build        # Compilar para produção
 npm run start:prod   # Executar em produção
 npm run test         # Executar testes
 npm run lint         # Verificar código
+npm run prisma:seed  # Popular banco com dados de exemplo
+```
+
+### 🌱 Script de Seed
+
+O comando `npm run prisma:seed` é muito útil para:
+
+- **Desenvolvimento**: Ter dados de teste prontos
+- **Demonstração**: Mostrar a API funcionando com dados reais
+- **Testes**: Validar funcionalidades com diferentes cenários
+
+**Dados criados pelo seed:**
+- ✅ 1 usuário administrador
+- ✅ 4 usuários regulares
+- ✅ 5 tags coloridas
+- ✅ 20 tasks com diferentes status
+- ✅ Relacionamentos entre tasks e tags
+
+**Para limpar e recriar os dados:**
+```bash
+# O seed automaticamente limpa os dados existentes antes de criar novos
+npm run prisma:seed
 ```
 
 ## 🤝 Contribuição

@@ -1,0 +1,880 @@
+{
+	"info": {
+		"name": "Acessoria API",
+		"description": "API de gerenciamento de tasks e usuários com autenticação JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"version": "1.0.0"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "task_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tag_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 Autenticação",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', response.token);",
+									"    ",
+									"    // Se for admin, também salva como admin_token",
+									"    if (response.user.role === 'ADMIN') {",
+									"        pm.collectionVariables.set('admin_token', response.token);",
+									"    }",
+									"    ",
+									"    pm.test('Login successful', () => {",
+									"        pm.expect(response.token).to.exist;",
+									"        pm.expect(response.user).to.exist;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@acessoria.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Fazer login na API. Use os dados do seed:\n- admin@acessoria.com (ADMIN)\n- joao@acessoria.com (USER)\n- maria@acessoria.com (USER)\n- pedro@acessoria.com (USER)\n- ana@acessoria.com (USER)\n\nSenha para todos: password123"
+					}
+				},
+				{
+					"name": "Login como Usuário Regular",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', response.token);",
+									"    ",
+									"    pm.test('Login successful', () => {",
+									"        pm.expect(response.token).to.exist;",
+									"        pm.expect(response.user.role).to.eql('USER');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"joao@acessoria.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login como usuário regular para testar permissões"
+					}
+				},
+				{
+					"name": "Registrar Usuário",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"novo@acessoria.com\",\n  \"password\": \"password123\",\n  \"name\": \"Novo Usuário\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Criar novo usuário"
+					}
+				},
+				{
+					"name": "Perfil do Usuário",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Obter informações do usuário logado"
+					}
+				}
+			],
+			"description": "Endpoints de autenticação e autorização"
+		},
+		{
+			"name": "📋 Tasks",
+			"item": [
+				{
+					"name": "Criar Task",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('task_id', response.id);",
+									"    ",
+									"    pm.test('Task created successfully', () => {",
+									"        pm.expect(response.id).to.exist;",
+									"        pm.expect(response.title).to.exist;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Nova Task de Teste\",\n  \"description\": \"Descrição da nova task\",\n  \"priority\": \"HIGH\",\n  \"status\": \"PENDING\",\n  \"dueDate\": \"2024-12-31T23:59:59.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tasks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tasks"
+							]
+						},
+						"description": "Criar nova task"
+					}
+				},
+				{
+					"name": "Listar Tasks",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tasks?page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Página (opcional)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Limite por página (opcional)"
+								},
+								{
+									"key": "status",
+									"value": "PENDING",
+									"description": "Filtrar por status (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "priority",
+									"value": "HIGH",
+									"description": "Filtrar por prioridade (opcional)",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "teste",
+									"description": "Buscar por texto (opcional)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Listar todas as tasks do usuário com filtros opcionais"
+					}
+				},
+				{
+					"name": "Obter Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tasks/{{task_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "Obter task específica por ID"
+					}
+				},
+				{
+					"name": "Atualizar Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Task Atualizada\",\n  \"status\": \"IN_PROGRESS\",\n  \"priority\": \"MEDIUM\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tasks/{{task_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "Atualizar task existente"
+					}
+				},
+				{
+					"name": "Deletar Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tasks/{{task_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "Deletar task"
+					}
+				}
+			],
+			"description": "Gerenciamento de tasks"
+		},
+		{
+			"name": "🏷️ Tags",
+			"item": [
+				{
+					"name": "Criar Tag",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('tag_id', response.id);",
+									"    ",
+									"    pm.test('Tag created successfully', () => {",
+									"        pm.expect(response.id).to.exist;",
+									"        pm.expect(response.name).to.exist;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nova Tag\",\n  \"color\": \"#FF5733\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tags",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags"
+							]
+						},
+						"description": "Criar nova tag"
+					}
+				},
+				{
+					"name": "Listar Tags",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tags",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags"
+							]
+						},
+						"description": "Listar todas as tags"
+					}
+				},
+				{
+					"name": "Obter Tag",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tags/{{tag_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags",
+								"{{tag_id}}"
+							]
+						},
+						"description": "Obter tag específica por ID"
+					}
+				},
+				{
+					"name": "Atualizar Tag",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Tag Atualizada\",\n  \"color\": \"#33FF57\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tags/{{tag_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags",
+								"{{tag_id}}"
+							]
+						},
+						"description": "Atualizar tag existente"
+					}
+				},
+				{
+					"name": "Deletar Tag",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tags/{{tag_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags",
+								"{{tag_id}}"
+							]
+						},
+						"description": "Deletar tag"
+					}
+				},
+				{
+					"name": "Adicionar Tag à Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tagId\": \"{{tag_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/tags/tasks/{{task_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "Associar tag a uma task"
+					}
+				},
+				{
+					"name": "Remover Tag da Task",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/tags/tasks/{{task_id}}/{{tag_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tags",
+								"tasks",
+								"{{task_id}}",
+								"{{tag_id}}"
+							]
+						},
+						"description": "Remover associação entre tag e task"
+					}
+				}
+			],
+			"description": "Gerenciamento de tags"
+		},
+		{
+			"name": "👑 Admin",
+			"item": [
+				{
+					"name": "Listar Usuários (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						},
+						"description": "Listar todos os usuários (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "Listar Tasks (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/tasks",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"tasks"
+							]
+						},
+						"description": "Listar todas as tasks do sistema (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "Alterar Role do Usuário",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('user_id', response.id);",
+									"    ",
+									"    pm.test('User role updated successfully', () => {",
+									"        pm.expect(response.role).to.exist;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{user_id}}/role",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{user_id}}",
+								"role"
+							]
+						},
+						"description": "Alterar role de um usuário (apenas ADMIN)"
+					}
+				},
+				{
+					"name": "Deletar Usuário (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Deletar usuário e suas tasks (apenas ADMIN)"
+					}
+				}
+			],
+			"description": "Funcionalidades administrativas (apenas ADMIN)"
+		},
+		{
+			"name": "📊 Estatísticas",
+			"item": [
+				{
+					"name": "Dashboard de Estatísticas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stats/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"stats",
+								"dashboard"
+							]
+						},
+						"description": "Obter estatísticas do usuário"
+					}
+				}
+			],
+			"description": "Dashboard e estatísticas"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set variables based on response",
+					"console.log('Pre-request script executed');"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"pm.test('Response time is less than 5000ms', () => {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"pm.test('Response has valid JSON', () => {",
+					"    pm.response.to.have.jsonBody();",
+					"});"
+				]
+			}
+		}
+	]
+}

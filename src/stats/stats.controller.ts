@@ -9,6 +9,6 @@ export class StatsController {
 
   @Get('dashboard')
   getDashboardStats(@Request() req) {
-    return this.statsService.getDashboardStats(req.user.id);
+    return this.statsService.getDashboardStats(req.user.id, req.user.role);
   }
 }

@@ -26,7 +26,7 @@ Antes de começar, certifique-se de ter instalado:
 ### 1. Clone o repositório
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/eliasfmartins/desafio-acessoria.git
 cd desafio-acessoria
 ```
 
@@ -167,12 +167,30 @@ Para facilitar os testes, criamos coleções prontas para **Insomnia** e **Postm
 - 🧪 **Testes automáticos** de validação
 - 📝 **Documentação integrada** em cada request
 - 🔄 **Variáveis automáticas** (tokens, IDs)
+- ⚙️ **Variáveis de ambiente** pré-configuradas
+- 🚨 **Troubleshooting** completo
 
 ### 🎯 Fluxo de Teste
 1. **Execute o seed**: `npm run prisma:seed`
 2. **Importe a coleção** no seu cliente preferido
-3. **Faça login** (token salvo automaticamente)
-4. **Teste todas as funcionalidades** com dados reais
+3. **Configure as variáveis** (se necessário)
+4. **Faça login** (token salvo automaticamente)
+5. **Teste todas as funcionalidades** com dados reais
+
+### ⚙️ Variáveis de Ambiente
+
+As coleções usam as seguintes variáveis:
+
+| Variável | Padrão | Descrição |
+|----------|--------|-----------|
+| `base_url` | `http://localhost:3000` | URL da API |
+| `auth_token` | *(vazio)* | Token JWT (preenchido automaticamente) |
+| `admin_token` | *(vazio)* | Token admin (preenchido automaticamente) |
+| `user_id` | *(vazio)* | ID do usuário (preenchido automaticamente) |
+| `task_id` | *(vazio)* | ID da task (preenchido automaticamente) |
+| `tag_id` | *(vazio)* | ID da tag (preenchido automaticamente) |
+
+> **💡 Dica**: Apenas `base_url` precisa ser configurada manualmente. As outras são preenchidas automaticamente pelos scripts.
 
 **Veja `API_COLLECTIONS.md` para instruções detalhadas!**
 
@@ -454,26 +472,65 @@ Retorna estatísticas personalizadas do usuário.
 Authorization: Bearer <token>
 ```
 
-**Resposta:**
+**Resposta (Usuário Regular):**
 ```json
 {
-  "totalTasks": 42,
+  "totalTasks": 5,
   "tasksByStatus": {
-    "PENDING": 10,
-    "IN_PROGRESS": 5,
-    "COMPLETED": 25,
-    "CANCELLED": 2
+    "PENDING": 2,
+    "IN_PROGRESS": 1,
+    "COMPLETED": 1,
+    "CANCELLED": 1
   },
   "tasksByPriority": {
-    "LOW": 8,
-    "MEDIUM": 20,
-    "HIGH": 10,
-    "URGENT": 4
+    "LOW": 1,
+    "MEDIUM": 2,
+    "HIGH": 2,
+    "URGENT": 0
   },
-  "overdueTasks": 3,
-  "completionRate": 59.5
+  "overdueTasks": 0,
+  "completionRate": 20.0
 }
 ```
+
+**Resposta (Admin - com estatísticas globais):**
+```json
+{
+  "totalTasks": 5,
+  "tasksByStatus": {
+    "PENDING": 2,
+    "IN_PROGRESS": 1,
+    "COMPLETED": 1,
+    "CANCELLED": 1
+  },
+  "tasksByPriority": {
+    "LOW": 1,
+    "MEDIUM": 2,
+    "HIGH": 2,
+    "URGENT": 0
+  },
+  "overdueTasks": 0,
+  "completionRate": 20.0,
+  "adminStats": {
+    "totalTasks": 21,
+    "tasksByStatus": {
+      "PENDING": 8,
+    "IN_PROGRESS": 5,
+    "COMPLETED": 5,
+    "CANCELLED": 3
+  },
+  "tasksByPriority": {
+    "LOW": 3,
+    "MEDIUM": 8,
+    "HIGH": 8,
+    "URGENT": 2
+  },
+  "overdueTasks": 2,
+  "completionRate": 23.8
+}
+```
+
+> **💡 Nota**: Usuários ADMIN recebem um campo adicional `adminStats` com estatísticas de todos os usuários do sistema, permitindo controle total e visão geral.
 
 ## 🔒 Autenticação e Autorização
 

@@ -24,16 +24,59 @@ Este diretório contém coleções prontas para testar a API Acessoria nos princ
 
 ## 🎯 Como Usar
 
+### 0. Configuração Inicial (IMPORTANTE!)
+
+Antes de usar as coleções, certifique-se de que:
+
+1. **API está rodando**:
+   ```bash
+   npm run start:dev
+   ```
+
+2. **Banco está configurado**:
+   ```bash
+   docker-compose up -d
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+3. **Dados de exemplo estão carregados**:
+   ```bash
+   npm run prisma:seed
+   ```
+
+4. **API está respondendo**:
+   - Acesse `http://localhost:3000` no navegador
+   - Deve retornar uma mensagem de boas-vindas
+
 ### 1. Configurar Variáveis de Ambiente
 
 #### Insomnia
 - Vá em **"Manage Environments"**
 - Edite o ambiente **"Base Environment"**
-- Configure a variável `base_url` se necessário (padrão: `http://localhost:3000`)
+- Configure as seguintes variáveis:
+
+| Variável | Valor Padrão | Descrição |
+|----------|--------------|-----------|
+| `base_url` | `http://localhost:3000` | URL base da API |
+| `auth_token` | *(vazio)* | Token JWT do usuário logado |
+| `admin_token` | *(vazio)* | Token JWT do admin (preenchido automaticamente) |
+| `user_id` | *(vazio)* | ID do usuário (preenchido automaticamente) |
+| `task_id` | *(vazio)* | ID da task (preenchido automaticamente) |
+| `tag_id` | *(vazio)* | ID da tag (preenchido automaticamente) |
 
 #### Postman
 - Clique na aba **"Variables"** da coleção
-- Configure a variável `base_url` se necessário (padrão: `http://localhost:3000`)
+- Configure as seguintes variáveis:
+
+| Variável | Valor Padrão | Descrição |
+|----------|--------------|-----------|
+| `base_url` | `http://localhost:3000` | URL base da API |
+| `auth_token` | *(vazio)* | Token JWT do usuário logado |
+| `admin_token` | *(vazio)* | Token JWT do admin (preenchido automaticamente) |
+| `user_id` | *(vazio)* | ID do usuário (preenchido automaticamente) |
+| `task_id` | *(vazio)* | ID da task (preenchido automaticamente) |
+| `tag_id` | *(vazio)* | ID da tag (preenchido automaticamente) |
 
 ### 2. Executar o Seed (Importante!)
 
@@ -45,10 +88,15 @@ npm run prisma:seed
 
 ### 3. Fluxo de Teste Recomendado
 
-#### Passo 1: Fazer Login
-1. Execute **"Login"** (usando `admin@acessoria.com`)
-2. O token será automaticamente salvo nas variáveis
-3. Para admin: `admin_token` será preenchido automaticamente
+> **⚠️ IMPORTANTE**: Sempre faça login primeiro! A maioria dos endpoints requer autenticação.
+
+#### Passo 1: Fazer Login (OBRIGATÓRIO)
+1. **Execute "Login"** usando um dos usuários do seed:
+   - `admin@acessoria.com` (ADMIN) - para testar funcionalidades admin
+   - `joao@acessoria.com` (USER) - para testar como usuário regular
+2. **O token será automaticamente salvo** nas variáveis `auth_token`
+3. **Se for admin**: `admin_token` será preenchido automaticamente
+4. **Verifique se o login funcionou**: deve retornar status 200 com token
 
 #### Passo 2: Testar Funcionalidades Básicas
 1. **"Perfil do Usuário"** - Verificar dados do usuário logado
@@ -143,6 +191,52 @@ A coleção possui scripts automáticos que:
 ### Variáveis não funcionando
 - **Postman**: Verifique se está na aba "Variables" da coleção
 - **Insomnia**: Verifique se está no ambiente correto
+
+### Token não sendo salvo
+- **Verifique se fez login primeiro**: Execute "Login" antes de outros requests
+- **Confirme o status 200**: Login deve retornar sucesso
+- **Postman**: Verifique se os scripts de teste estão executando
+- **Insomnia**: Verifique se as variáveis estão sendo definidas corretamente
+
+### Erro 401 em requests autenticados
+- **Token expirado**: Faça login novamente
+- **Token inválido**: Verifique se `auth_token` está preenchido
+- **Header incorreto**: Deve ser `Authorization: Bearer {{auth_token}}`
+
+### Dashboard não autorizado (específico)
+
+#### ✅ **Diagnóstico Rápido:**
+1. **Teste manual com curl** (sempre funciona):
+   ```bash
+   # 1. Fazer login
+   curl -X POST http://localhost:3000/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email": "admin@acessoria.com", "password": "password123"}'
+   
+   # 2. Usar o token retornado
+   curl -X GET http://localhost:3000/stats/dashboard \
+     -H "Authorization: Bearer SEU_TOKEN_AQUI"
+   ```
+
+#### 🔧 **Soluções para Coleções:**
+
+**Insomnia:**
+1. **Verifique o ambiente**: Vá em "Manage Environments" → "Base Environment"
+2. **Confirme variáveis**: `base_url` e `auth_token` devem estar preenchidas
+3. **Execute na ordem**: Login → Dashboard (não pule o login)
+4. **Verifique headers**: Deve ter `Authorization: Bearer {{ _.auth_token }}`
+
+**Postman:**
+1. **Verifique variáveis**: Clique na aba "Variables" da coleção
+2. **Execute na ordem**: Login → Dashboard (não pule o login)
+3. **Verifique scripts**: Login deve ter script para salvar token
+4. **Verifique headers**: Deve ter `Authorization: Bearer {{auth_token}}`
+
+#### 🚨 **Se ainda não funcionar:**
+1. **Reimporte a coleção**: Delete e importe novamente
+2. **Limpe cache**: Reinicie o Insomnia/Postman
+3. **Verifique versão**: Use versões atualizadas dos clientes
+4. **Teste com curl**: Se curl funciona, o problema é na coleção
 
 ## 📊 Dados de Exemplo
 

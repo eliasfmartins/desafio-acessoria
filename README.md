@@ -14,6 +14,9 @@ Esta aplicação é um sistema completo de gerenciamento de tarefas que inclui:
 - **Controle de Acesso** baseado em roles (USER/ADMIN)
 - **Soft Delete** para usuários e tarefas com possibilidade de restauração
 - **Sistema de Cache** com Redis para otimização de consultas frequentes
+- **Testes Unitários** completos com cobertura de código
+- **Rate Limiting** para proteção contra ataques
+- **Logs Estruturados** para monitoramento e debugging
 
 ## 🛠️ Pré-requisitos
 
@@ -116,6 +119,109 @@ npm run start:prod
 ```
 
 A aplicação estará disponível em: `http://localhost:3000`
+
+## 🧪 Testes
+
+A aplicação possui uma suíte completa de testes unitários com alta cobertura de código.
+
+### Scripts de Teste Disponíveis
+
+```bash
+# Executar todos os testes
+npm test
+
+# Executar testes em modo watch (re-executa quando arquivos mudam)
+npm run test:watch
+
+# Executar testes com relatório de cobertura
+npm run test:cov
+
+# Executar testes de integração (e2e)
+npm run test:e2e
+
+# Executar testes em modo debug
+npm run test:debug
+```
+
+### Cobertura de Testes
+
+- **81 testes unitários** implementados
+- **Cobertura geral**: 64.21%
+- **Cobertura por módulo**:
+  - Admin: 87.2%
+  - Auth: 82.35%
+  - Stats: 86.27%
+  - Tags: 82.7%
+  - Tasks: 81.89%
+
+### Estrutura dos Testes
+
+```
+src/
+├── auth/
+│   ├── auth.service.spec.ts      # Testes do serviço de autenticação
+│   └── auth.controller.spec.ts   # Testes do controller de autenticação
+├── tasks/
+│   ├── tasks.service.spec.ts     # Testes do serviço de tasks
+│   └── tasks.controller.spec.ts  # Testes do controller de tasks
+├── tags/
+│   ├── tags.service.spec.ts      # Testes do serviço de tags
+│   └── tags.controller.spec.ts   # Testes do controller de tags
+├── admin/
+│   ├── admin.service.spec.ts     # Testes do serviço de admin
+│   └── admin.controller.spec.ts  # Testes do controller de admin
+├── stats/
+│   ├── stats.service.spec.ts     # Testes do serviço de estatísticas
+│   └── stats.controller.spec.ts  # Testes do controller de estatísticas
+└── test/
+    └── app.e2e-spec.ts           # Testes de integração (e2e)
+```
+
+### Cenários Testados
+
+#### Autenticação
+- ✅ Registro de usuários
+- ✅ Login com credenciais válidas/inválidas
+- ✅ Validação de JWT tokens
+- ✅ Controle de acesso baseado em roles
+
+#### Tasks
+- ✅ CRUD completo de tarefas
+- ✅ Soft delete e restauração
+- ✅ Cache de consultas
+- ✅ Validações de permissão
+- ✅ Paginação e filtros
+
+#### Tags
+- ✅ CRUD de tags
+- ✅ Associação/desassociação com tarefas
+- ✅ Validações de unicidade
+- ✅ Cache de consultas
+
+#### Admin
+- ✅ Gerenciamento de usuários
+- ✅ Alteração de roles
+- ✅ Soft delete e hard delete
+- ✅ Restauração de registros
+- ✅ Estatísticas administrativas
+
+#### Stats
+- ✅ Cálculo de estatísticas
+- ✅ Cache de resultados
+- ✅ Diferenciação por role (USER/ADMIN)
+
+### Executando Testes Específicos
+
+```bash
+# Executar apenas testes de um módulo específico
+npm test -- --testPathPattern=auth
+
+# Executar testes com verbose
+npm test -- --verbose
+
+# Executar testes e gerar relatório HTML de cobertura
+npm run test:cov -- --coverageReporters=html
+```
 
 ## 🚀 Sistema de Cache
 
@@ -279,6 +385,117 @@ curl -X GET http://localhost:3000/admin/users \
 ```bash
 curl -X GET http://localhost:3000/stats/dashboard \
   -H "Authorization: Bearer SEU_TOKEN_AQUI"
+```
+
+## 📊 Logs Estruturados
+
+A aplicação implementa um sistema de logs estruturados usando **Winston** para facilitar o monitoramento, debugging e análise de performance.
+
+### Configuração
+
+Os logs são configurados no `LoggerService` com diferentes níveis e formatos:
+
+```typescript
+// Níveis de log disponíveis
+LOG_LEVEL=info // debug, info, warn, error
+
+// Formato dos logs
+{
+  "timestamp": "2025-09-16T22:55:30.938Z",
+  "level": "info",
+  "message": "HTTP Request",
+  "context": "HTTP",
+  "method": "GET",
+  "url": "/tasks",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userAgent": "curl/8.5.0",
+  "userId": "user-123"
+}
+```
+
+### Tipos de Logs
+
+#### 1. Logs de Requisições HTTP
+```json
+{
+  "timestamp": "2025-09-16T22:55:30.938Z",
+  "level": "info",
+  "message": "HTTP Request",
+  "context": "HTTP",
+  "method": "GET",
+  "url": "/tasks",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userAgent": "curl/8.5.0",
+  "userId": "user-123"
+}
+```
+
+#### 2. Logs de Autenticação
+```json
+{
+  "timestamp": "2025-09-16T22:55:30.938Z",
+  "level": "info",
+  "message": "Authentication login",
+  "context": "AUTH",
+  "action": "login",
+  "email": "user@example.com",
+  "success": true,
+  "ip": "127.0.0.1",
+  "userAgent": "curl/8.5.0"
+}
+```
+
+#### 3. Logs de Negócio
+```json
+{
+  "timestamp": "2025-09-16T22:55:30.938Z",
+  "level": "info",
+  "message": "Business Action: task_created",
+  "context": "BUSINESS",
+  "action": "task_created",
+  "entity": "Task",
+  "entityId": "task-123",
+  "userId": "user-123",
+  "details": {
+    "title": "Nova Tarefa",
+    "priority": "HIGH"
+  }
+}
+```
+
+#### 4. Logs de Segurança
+```json
+{
+  "timestamp": "2025-09-16T22:55:30.938Z",
+  "level": "warn",
+  "message": "Security Event: rate_limit_exceeded",
+  "context": "SECURITY",
+  "event": "rate_limit_exceeded",
+  "severity": "medium",
+  "ip": "127.0.0.1",
+  "endpoint": "/auth/login",
+  "attempts": 6
+}
+```
+
+### Arquivos de Log
+
+Os logs são salvos em diferentes arquivos:
+
+- `logs/combined.log` - Todos os logs
+- `logs/error.log` - Apenas logs de erro
+- Console - Logs formatados para desenvolvimento
+
+### Configuração de Ambiente
+
+```env
+# Nível de log (debug, info, warn, error)
+LOG_LEVEL=info
+
+# Habilitar logs estruturados
+ENABLE_STRUCTURED_LOGS=true
 ```
 
 ## 🚀 Coleções para Testes
@@ -788,6 +1005,71 @@ Authorization: Bearer <token>
 ```
 
 > **💡 Nota**: Usuários ADMIN recebem um campo adicional `adminStats` com estatísticas de todos os usuários do sistema, permitindo controle total e visão geral.
+
+## 🛡️ Rate Limiting
+
+A aplicação implementa um sistema de rate limiting para proteger contra ataques de força bruta e abuso da API.
+
+### Configuração
+
+O rate limiting é configurado globalmente no `app.module.ts` com três níveis:
+
+```typescript
+ThrottlerModule.forRoot([
+  {
+    name: 'short',
+    ttl: 1000, // 1 segundo
+    limit: 3, // 3 requests por segundo
+  },
+  {
+    name: 'medium',
+    ttl: 10000, // 10 segundos
+    limit: 20, // 20 requests por 10 segundos
+  },
+  {
+    name: 'long',
+    ttl: 60000, // 1 minuto
+    limit: 100, // 100 requests por minuto
+  },
+])
+```
+
+### Aplicação por Endpoint
+
+#### Autenticação
+- **Registro**: 2 tentativas por minuto
+- **Login**: 5 tentativas por minuto
+
+#### Tasks
+- **Criação**: 10 por minuto
+- **Listagem**: 60 por minuto
+- **Atualização**: 20 por minuto
+- **Exclusão**: 10 por minuto
+
+#### Tags
+- **Criação**: 10 por minuto
+- **Listagem**: 60 por minuto
+- **Atualização**: 20 por minuto
+- **Exclusão**: 10 por minuto
+
+#### Admin
+- **Consultas**: 100 por minuto
+- **Modificações**: 20 por minuto
+
+#### Stats
+- **Dashboard**: 30 por minuto
+
+### Resposta de Rate Limit
+
+Quando o limite é excedido, a API retorna:
+
+```json
+{
+  "statusCode": 429,
+  "message": "ThrottlerException: Too Many Requests",
+  "error": "Too Many Requests"
+}
+```
 
 ## 🗑️ Soft Delete
 

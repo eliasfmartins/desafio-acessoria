@@ -9,7 +9,7 @@ import { SoftDeleteService } from '../common/soft-delete/soft-delete.service';
 
 @Injectable()
 export class TasksService {
-  private readonly enableCache = process.env.ENABLE_CACHE !== 'false';
+  private readonly enableCache = false;
 
   constructor(
     private prisma: PrismaService,

@@ -9,19 +9,15 @@ export class SoftDeleteService {
     private logger: LoggerService,
   ) {}
 
-  /**
-   * Soft delete para usuários
-   */
+  
   async softDeleteUser(userId: string) {
     const startTime = Date.now();
     
-    // Primeiro, soft delete todas as tasks do usuário
     const tasksResult = await this.prisma.task.updateMany({
       where: { userId },
       data: { deletedAt: new Date() },
     });
 
-    // Depois, soft delete o usuário
     const userResult = await this.prisma.user.update({
       where: { id: userId },
       data: { deletedAt: new Date() },
@@ -36,9 +32,6 @@ export class SoftDeleteService {
     return userResult;
   }
 
-  /**
-   * Soft delete para tasks
-   */
   async softDeleteTask(taskId: string) {
     const startTime = Date.now();
     
@@ -55,26 +48,18 @@ export class SoftDeleteService {
     return result;
   }
 
-  /**
-   * Restaurar usuário (hard restore)
-   */
   async restoreUser(userId: string) {
-    // Primeiro, restaurar todas as tasks do usuário
     await this.prisma.task.updateMany({
       where: { userId },
       data: { deletedAt: null },
     });
 
-    // Depois, restaurar o usuário
     return this.prisma.user.update({
       where: { id: userId },
       data: { deletedAt: null },
     });
   }
 
-  /**
-   * Restaurar task (hard restore)
-   */
   async restoreTask(taskId: string) {
     return this.prisma.task.update({
       where: { id: taskId },
@@ -82,33 +67,24 @@ export class SoftDeleteService {
     });
   }
 
-  /**
-   * Deletar permanentemente um usuário (hard delete)
-   */
+  
   async hardDeleteUser(userId: string) {
-    // Primeiro, hard delete todas as tasks do usuário
     await this.prisma.task.deleteMany({
       where: { userId },
     });
 
-    // Depois, hard delete o usuário
     return this.prisma.user.delete({
       where: { id: userId },
     });
   }
 
-  /**
-   * Deletar permanentemente uma task (hard delete)
-   */
   async hardDeleteTask(taskId: string) {
     return this.prisma.task.delete({
       where: { id: taskId },
     });
   }
 
-  /**
-   * Listar usuários deletados (soft deleted)
-   */
+  
   async findDeletedUsers() {
     return this.prisma.user.findMany({
       where: { deletedAt: { not: null } },
@@ -120,9 +96,7 @@ export class SoftDeleteService {
     });
   }
 
-  /**
-   * Listar tasks deletadas (soft deleted)
-   */
+  
   async findDeletedTasks() {
     return this.prisma.task.findMany({
       where: { deletedAt: { not: null } },

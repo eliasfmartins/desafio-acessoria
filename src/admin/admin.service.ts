@@ -12,7 +12,7 @@ export class AdminService {
   async findAllUsers() {
     const users = await this.prisma.user.findMany({
       where: {
-        deletedAt: null, // Filtrar apenas usuários não deletados
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -25,7 +25,7 @@ export class AdminService {
           select: {
             tasks: {
               where: {
-                deletedAt: null, // Filtrar apenas tasks não deletadas
+                deletedAt: null,
               },
             },
           },
@@ -42,7 +42,7 @@ export class AdminService {
   async findAllTasks() {
     const tasks = await this.prisma.task.findMany({
       where: {
-        deletedAt: null, // Filtrar apenas tasks não deletadas
+        deletedAt: null,
       },
       include: {
         user: {
@@ -102,7 +102,7 @@ export class AdminService {
       throw new NotFoundException('Usuário não encontrado');
     }
 
-    // Usar soft delete ao invés de hard delete
+    
     await this.softDeleteService.softDeleteUser(userId);
 
     return {
@@ -112,7 +112,7 @@ export class AdminService {
     };
   }
 
-  // Novos métodos para soft delete
+  
   async findDeletedUsers() {
     return this.softDeleteService.findDeletedUsers();
   }

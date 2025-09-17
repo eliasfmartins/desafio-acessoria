@@ -30,7 +30,6 @@ export class LoggerService implements NestLoggerService {
         version: process.env.npm_package_version || '1.0.0',
       },
       transports: [
-        // Console transport para desenvolvimento
         new winston.transports.Console({
           format: winston.format.combine(
             winston.format.colorize(),
@@ -42,7 +41,6 @@ export class LoggerService implements NestLoggerService {
             })
           ),
         }),
-        // File transport para logs de erro
         new winston.transports.File({
           filename: 'logs/error.log',
           level: 'error',
@@ -51,7 +49,6 @@ export class LoggerService implements NestLoggerService {
             winston.format.json()
           ),
         }),
-        // File transport para todos os logs
         new winston.transports.File({
           filename: 'logs/combined.log',
           format: winston.format.combine(
@@ -88,7 +85,6 @@ export class LoggerService implements NestLoggerService {
     this.logger.verbose(message, { context, ...meta });
   }
 
-  // Métodos específicos para diferentes tipos de logs
   logRequest(method: string, url: string, statusCode: number, responseTime: number, userAgent?: string, userId?: string) {
     this.log('HTTP Request', 'HTTP', {
       method,

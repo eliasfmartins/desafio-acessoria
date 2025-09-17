@@ -214,7 +214,6 @@ export class TagsService {
       try {
         await this.cacheManager.del(key);
       } catch (error) {
-        // Ignorar erros individuais
       }
     }
   }
@@ -251,7 +250,6 @@ export class TagsService {
       try {
         await this.cacheManager.del(key);
       } catch (error) {
-        // Ignorar erros individuais
       }
     }
   }

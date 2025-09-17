@@ -18,7 +18,6 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
     const { email, name, password, role = 'USER' } = registerDto;
 
-    // Verificar se o email já existe
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -28,18 +27,14 @@ export class AuthService {
       throw new ConflictException('Email já está em uso');
     }
 
-    // Verificar se é o primeiro usuário (deve ser ADMIN)
     const userCount = await this.prisma.user.count();
     const isFirstUser = userCount === 0;
 
-    // Determinar o role do usuário
     const userRole = isFirstUser ? 'ADMIN' : (role || 'USER');
 
-    // Hash da senha
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Criar usuário
     const user = await this.prisma.user.create({
       data: {
         email,
@@ -49,7 +44,6 @@ export class AuthService {
       },
     });
 
-    // Gerar token JWT
     const payload = { sub: user.id, email: user.email, role: user.role };
     const access_token = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRATION || '7d' });
 
@@ -73,7 +67,6 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     const { email, password } = loginDto;
 
-    // Buscar usuário
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -83,7 +76,6 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // Verificar senha
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -91,7 +83,6 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    // Gerar token JWT
     const payload = { sub: user.id, email: user.email, role: user.role };
     const access_token = this.jwtService.sign(payload, { expiresIn: process.env.JWT_EXPIRATION || '7d' });
 

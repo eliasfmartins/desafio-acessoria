@@ -222,7 +222,6 @@ export class TasksService {
       console.warn(`Erro ao resetar cache via Redis direto:`, error.message);
     }
 
-    // Fallback: deletar chaves específicas conhecidas
     const specificKeys = [
       'tasks:user:0fc7b3fa-5a20-42f5-9c8a-8978d8e9e538:page:1:limit:10:status:all:priority:all:search:none',
       'tasks:user:0fc7b3fa-5a20-42f5-9c8a-8978d8e9e538:page:1:limit:20:status:all:priority:all:search:none',
@@ -238,7 +237,6 @@ export class TasksService {
       try {
         await this.cacheManager.del(key);
       } catch (error) {
-        // Ignorar erros individuais
       }
     }
   }

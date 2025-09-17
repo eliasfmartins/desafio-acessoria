@@ -7,14 +7,11 @@ import { LoggerService } from './common/logger/logger.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // Configurar logger
   const loggerService = app.get(LoggerService);
   app.useLogger(loggerService);
   
-  // Configurar interceptor de logging
   app.useGlobalInterceptors(new LoggingInterceptor(loggerService));
   
-  // Configurar validação global
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,

@@ -11,7 +11,6 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { Reflector } from '@nestjs/core';
 
-// Decorator para configurar cache
 export const CacheKey = Reflector.createDecorator<string>();
 export const CacheTTL = Reflector.createDecorator<number>();
 
@@ -29,12 +28,10 @@ export class CacheInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
 
-    // Apenas cachear GET requests
     if (request.method !== 'GET') {
       return next.handle();
     }
 
-    // Obter configurações de cache dos decorators
     const cacheKey = this.reflector.get(CacheKey, context.getHandler());
     const ttl = this.reflector.get(CacheTTL, context.getHandler()) || 300000; // 5 minutos padrão
 
@@ -42,18 +39,14 @@ export class CacheInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // Criar chave única incluindo parâmetros da requisição
     const fullCacheKey = this.generateCacheKey(cacheKey, request);
 
-    // Tentar buscar no cache
     const cachedValue = await this.cacheManager.get(fullCacheKey);
     if (cachedValue) {
-      // Adicionar header indicando que veio do cache
       response.set('X-Cache', 'HIT');
       return of(cachedValue);
     }
 
-    // Se não encontrou no cache, executar e armazenar resultado
     response.set('X-Cache', 'MISS');
     return next.handle().pipe(
       tap(async (result) => {

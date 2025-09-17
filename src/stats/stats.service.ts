@@ -25,15 +25,8 @@ export class StatsService {
       },
     });
 
-    // Debug: Log das tasks encontradas
-    console.log(`🔍 DEBUG STATS - UserId: ${userId}`);
-    console.log(`🔍 DEBUG STATS - Tasks encontradas: ${userTasks.length}`);
-    console.log(`🔍 DEBUG STATS - Tasks:`, userTasks.map(t => ({ id: t.id, title: t.title, status: t.status, priority: t.priority })));
 
     const userStats = this.calculateStats(userTasks);
-
-    // Debug: Log das estatísticas calculadas
-    console.log(`🔍 DEBUG STATS - Estatísticas calculadas:`, userStats);
 
     let result: any = userStats;
 
@@ -49,8 +42,6 @@ export class StatsService {
       };
     }
 
-    // Cache desabilitado temporariamente para resolver problemas
-    // await this.cacheManager.set(cacheKey, result, 180000);
 
     return result;
   }

@@ -8,15 +8,13 @@ import {
   Delete, 
   UseGuards, 
   Request, 
-  Query,
-  UseInterceptors
+  Query
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { QueryTasksDto } from './dto/query-tasks.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CacheInterceptor, CacheKey, CacheTTL } from '../common/interceptors/cache.interceptor';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -48,7 +46,6 @@ export class TasksController {
     return this.tasksService.remove(req.user.id, id);
   }
 
-  // Rota para restaurar task deletada
   @Post(':id/restore')
   restore(@Request() req, @Param('id') id: string) {
     return this.tasksService.restore(req.user.id, id);

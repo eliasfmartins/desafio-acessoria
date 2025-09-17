@@ -40,7 +40,6 @@ export class AdminController {
     return this.adminService.deleteUser(id);
   }
 
-  // Novas rotas para soft delete
   @Get('users/deleted')
   findDeletedUsers() {
     return this.adminService.findDeletedUsers();

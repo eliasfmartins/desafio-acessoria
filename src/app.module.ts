@@ -13,7 +13,6 @@ import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
-    // Configuração do Cache com Redis
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => {
@@ -25,8 +24,8 @@ import { LoggerModule } from './common/logger/logger.module';
             },
             password: process.env.REDIS_PASSWORD,
           }),
-          ttl: 300, // 5 minutos padrão
-          max: 1000, // máximo 1000 chaves em cache
+          ttl: 300,
+          max: 1000,
         };
       },
     }),

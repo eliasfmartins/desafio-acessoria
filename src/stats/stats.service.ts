@@ -13,13 +13,10 @@ export class StatsService {
   async getDashboardStats(userId: string, userRole?: string) {
     const cacheKey = `stats:user:${userId}:role:${userRole || 'USER'}`;
     
-    // Tentar buscar no cache primeiro
     const cachedStats = await this.cacheManager.get(cacheKey);
     if (cachedStats) {
       return cachedStats;
     }
-
-    // Buscar todas as tarefas do usuário
     const userTasks = await this.prisma.task.findMany({
       where: { userId },
     });
@@ -28,7 +25,6 @@ export class StatsService {
 
     let result: any = userStats;
 
-    // Se for admin, buscar estatísticas de todos os usuários
     if (userRole === 'ADMIN') {
       const allTasks = await this.prisma.task.findMany();
       const adminStats = this.calculateStats(allTasks);
@@ -39,7 +35,6 @@ export class StatsService {
       };
     }
 
-    // Armazenar no cache por 3 minutos (estatísticas podem ser atualizadas com menos frequência)
     await this.cacheManager.set(cacheKey, result, 180000);
 
     return result;
@@ -48,19 +43,16 @@ export class StatsService {
   private calculateStats(tasks: any[]) {
     const totalTasks = tasks.length;
 
-    // Contar tarefas por status
     const tasksByStatus = tasks.reduce((acc, task) => {
       acc[task.status] = (acc[task.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    // Contar tarefas por prioridade
     const tasksByPriority = tasks.reduce((acc, task) => {
       acc[task.priority] = (acc[task.priority] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-    // Contar tarefas atrasadas
     const now = new Date();
     const overdueTasks = tasks.filter(task => 
       task.dueDate && 
@@ -69,7 +61,6 @@ export class StatsService {
       task.status !== 'CANCELLED'
     ).length;
 
-    // Calcular taxa de conclusão
     const completedTasks = tasks.filter(task => task.status === 'COMPLETED').length;
     const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
@@ -88,7 +79,7 @@ export class StatsService {
         URGENT: tasksByPriority.URGENT || 0,
       },
       overdueTasks,
-      completionRate: Math.round(completionRate * 10) / 10, // Arredondar para 1 casa decimal
+      completionRate: Math.round(completionRate * 10) / 10,
     };
   }
 }

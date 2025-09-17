@@ -1259,11 +1259,26 @@ docker exec -it acessoria-redis redis-cli
 ## 📝 Scripts Disponíveis
 
 ```bash
+# Desenvolvimento
 npm run start:dev    # Desenvolvimento com hot-reload
+npm run start:debug  # Desenvolvimento com debug
+
+# Produção
 npm run build        # Compilar para produção
 npm run start:prod   # Executar em produção
-npm run test         # Executar testes
+
+# Testes
+npm test             # Executar todos os testes
+npm run test:watch   # Executar testes em modo watch
+npm run test:cov     # Executar testes com cobertura
+npm run test:e2e     # Executar testes de integração
+npm run test:debug   # Executar testes em modo debug
+
+# Qualidade de Código
 npm run lint         # Verificar código
+npm run format       # Formatar código
+
+# Banco de Dados
 npm run prisma:seed  # Popular banco com dados de exemplo
 ```
 

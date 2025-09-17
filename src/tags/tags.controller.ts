@@ -27,9 +27,6 @@ export class TagsController {
   }
 
   @Get()
-  @UseInterceptors(CacheInterceptor)
-  @CacheKey('tags:all')
-  @CacheTTL(600000) // 10 minutos
   findAll() {
     return this.tagsService.findAll();
   }

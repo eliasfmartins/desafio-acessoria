@@ -300,20 +300,20 @@
 								},
 								{
 									"key": "status",
-									"value": "PENDING",
-									"description": "Filtrar por status (opcional)",
+									"value": "",
+									"description": "Filtrar por status (opcional): PENDING, IN_PROGRESS, COMPLETED, CANCELLED",
 									"disabled": true
 								},
 								{
 									"key": "priority",
-									"value": "HIGH",
-									"description": "Filtrar por prioridade (opcional)",
+									"value": "",
+									"description": "Filtrar por prioridade (opcional): LOW, MEDIUM, HIGH, URGENT",
 									"disabled": true
 								},
 								{
 									"key": "search",
-									"value": "teste",
-									"description": "Buscar por texto (opcional)",
+									"value": "",
+									"description": "Buscar por texto no título ou descrição (opcional)",
 									"disabled": true
 								}
 							]

@@ -11,22 +11,36 @@ export class StatsService {
   ) {}
 
   async getDashboardStats(userId: string, userRole?: string) {
-    const cacheKey = `stats:user:${userId}:role:${userRole || 'USER'}`;
+    // Cache desabilitado temporariamente para resolver problemas
+    // const cacheKey = `stats:user:${userId}:role:${userRole || 'USER'}`;
     
-    const cachedStats = await this.cacheManager.get(cacheKey);
-    if (cachedStats) {
-      return cachedStats;
-    }
+    // const cachedStats = await this.cacheManager.get(cacheKey);
+    // if (cachedStats) {
+    //   return cachedStats;
+    // }
     const userTasks = await this.prisma.task.findMany({
-      where: { userId },
+      where: { 
+        userId,
+        deletedAt: null 
+      },
     });
 
+    // Debug: Log das tasks encontradas
+    console.log(`🔍 DEBUG STATS - UserId: ${userId}`);
+    console.log(`🔍 DEBUG STATS - Tasks encontradas: ${userTasks.length}`);
+    console.log(`🔍 DEBUG STATS - Tasks:`, userTasks.map(t => ({ id: t.id, title: t.title, status: t.status, priority: t.priority })));
+
     const userStats = this.calculateStats(userTasks);
+
+    // Debug: Log das estatísticas calculadas
+    console.log(`🔍 DEBUG STATS - Estatísticas calculadas:`, userStats);
 
     let result: any = userStats;
 
     if (userRole === 'ADMIN') {
-      const allTasks = await this.prisma.task.findMany();
+      const allTasks = await this.prisma.task.findMany({
+        where: { deletedAt: null }
+      });
       const adminStats = this.calculateStats(allTasks);
 
       result = {
@@ -35,7 +49,8 @@ export class StatsService {
       };
     }
 
-    await this.cacheManager.set(cacheKey, result, 180000);
+    // Cache desabilitado temporariamente para resolver problemas
+    // await this.cacheManager.set(cacheKey, result, 180000);
 
     return result;
   }
